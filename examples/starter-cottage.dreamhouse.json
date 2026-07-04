@@ -1,0 +1,1025 @@
+{
+  "id": "example-starter-cottage",
+  "name": "Starter Cottage",
+  "version": 1,
+  "unitSystem": "metric",
+  "plot": {
+    "boundary": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 12,
+        "y": 0
+      },
+      {
+        "x": 12,
+        "y": 9
+      },
+      {
+        "x": 0,
+        "y": 9
+      }
+    ],
+    "northAngle": 0,
+    "roadDirection": 180,
+    "setbacks": {
+      "front": 1.5,
+      "rear": 1,
+      "left": 0.8,
+      "right": 0.8
+    }
+  },
+  "levels": [
+    {
+      "id": "lvl-ground",
+      "name": "Ground Floor",
+      "elevation": 0,
+      "height": 3,
+      "elements": [
+        {
+          "id": "w-1",
+          "type": "wall",
+          "name": "Wall",
+          "start": {
+            "x": 1,
+            "y": 1
+          },
+          "end": {
+            "x": 9,
+            "y": 1
+          },
+          "transform": {
+            "position": {
+              "x": 5,
+              "y": 1,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 8,
+            "height": 3,
+            "depth": 0.23,
+            "thickness": 0.23
+          },
+          "material": {
+            "id": "plaster-white",
+            "name": "Plaster · White",
+            "color": "#ece8df",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0,
+            "texture": "plaster",
+            "textureScale": 2.5
+          }
+        },
+        {
+          "id": "w-2",
+          "type": "wall",
+          "name": "Wall",
+          "start": {
+            "x": 9,
+            "y": 1
+          },
+          "end": {
+            "x": 9,
+            "y": 7
+          },
+          "transform": {
+            "position": {
+              "x": 9,
+              "y": 4,
+              "z": 0
+            },
+            "rotation": 1.5707963267948966,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 6,
+            "height": 5,
+            "depth": 0.23,
+            "thickness": 0.23
+          },
+          "material": {
+            "id": "plaster-white",
+            "name": "Plaster · White",
+            "color": "#ece8df",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0,
+            "texture": "plaster",
+            "textureScale": 2.5
+          }
+        },
+        {
+          "id": "w-3",
+          "type": "wall",
+          "name": "Wall",
+          "start": {
+            "x": 9,
+            "y": 7
+          },
+          "end": {
+            "x": 1,
+            "y": 7
+          },
+          "transform": {
+            "position": {
+              "x": 5,
+              "y": 7,
+              "z": 0
+            },
+            "rotation": 3.141592653589793,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 8,
+            "height": 3,
+            "depth": 0.23,
+            "thickness": 0.23
+          },
+          "material": {
+            "id": "plaster-white",
+            "name": "Plaster · White",
+            "color": "#ece8df",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0,
+            "texture": "plaster",
+            "textureScale": 2.5
+          }
+        },
+        {
+          "id": "w-4",
+          "type": "wall",
+          "name": "Wall",
+          "start": {
+            "x": 1,
+            "y": 7
+          },
+          "end": {
+            "x": 1,
+            "y": 1
+          },
+          "transform": {
+            "position": {
+              "x": 1,
+              "y": 4,
+              "z": 0
+            },
+            "rotation": -1.5707963267948966,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 6,
+            "height": 5,
+            "depth": 0.23,
+            "thickness": 0.23
+          },
+          "material": {
+            "id": "plaster-white",
+            "name": "Plaster · White",
+            "color": "#ece8df",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0,
+            "texture": "plaster",
+            "textureScale": 2.5
+          }
+        },
+        {
+          "id": "w-5",
+          "type": "wall",
+          "name": "Wall",
+          "start": {
+            "x": 5,
+            "y": 1
+          },
+          "end": {
+            "x": 5,
+            "y": 7
+          },
+          "transform": {
+            "position": {
+              "x": 5,
+              "y": 4,
+              "z": 0
+            },
+            "rotation": 1.5707963267948966,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 6,
+            "height": 3,
+            "depth": 0.115,
+            "thickness": 0.115
+          },
+          "material": {
+            "id": "plaster-white",
+            "name": "Plaster · White",
+            "color": "#ece8df",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0,
+            "texture": "plaster",
+            "textureScale": 2.5
+          }
+        },
+        {
+          "id": "d-6",
+          "type": "door",
+          "name": "Door",
+          "wallId": "w-3",
+          "offset": 2,
+          "sillHeight": 0,
+          "style": "single",
+          "swing": 1,
+          "transform": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 0.9,
+            "height": 2.1,
+            "depth": 0.05
+          },
+          "material": {
+            "id": "wood-teak",
+            "name": "Wood · Teak",
+            "color": "#a8754a",
+            "finish": "satin",
+            "roughness": 0.65,
+            "metalness": 0,
+            "texture": "wood-planks",
+            "textureScale": 1.4
+          }
+        },
+        {
+          "id": "d-7",
+          "type": "door",
+          "name": "Door",
+          "wallId": "w-5",
+          "offset": 3,
+          "sillHeight": 0,
+          "style": "single",
+          "swing": 1,
+          "transform": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 0.8,
+            "height": 2.1,
+            "depth": 0.05
+          },
+          "material": {
+            "id": "wood-teak",
+            "name": "Wood · Teak",
+            "color": "#a8754a",
+            "finish": "satin",
+            "roughness": 0.65,
+            "metalness": 0,
+            "texture": "wood-planks",
+            "textureScale": 1.4
+          }
+        },
+        {
+          "id": "n-8",
+          "type": "window",
+          "name": "Window",
+          "wallId": "w-1",
+          "offset": 2,
+          "sillHeight": 0.9,
+          "style": "sliding",
+          "transform": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 1.2,
+            "height": 1.2,
+            "depth": 0.05
+          },
+          "material": {
+            "id": "glass",
+            "name": "Glass",
+            "color": "#aac9dd",
+            "finish": "glossy",
+            "roughness": 0.08,
+            "metalness": 0.1
+          }
+        },
+        {
+          "id": "n-9",
+          "type": "window",
+          "name": "Window",
+          "wallId": "w-1",
+          "offset": 6,
+          "sillHeight": 0.9,
+          "style": "casement",
+          "mullions": 1,
+          "transform": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 1.2,
+            "height": 1.2,
+            "depth": 0.05
+          },
+          "material": {
+            "id": "glass",
+            "name": "Glass",
+            "color": "#aac9dd",
+            "finish": "glossy",
+            "roughness": 0.08,
+            "metalness": 0.1
+          }
+        },
+        {
+          "id": "r-10",
+          "type": "room",
+          "name": "Living Room",
+          "roomType": "living",
+          "boundary": [
+            {
+              "x": 1,
+              "y": 1
+            },
+            {
+              "x": 5,
+              "y": 1
+            },
+            {
+              "x": 5,
+              "y": 7
+            },
+            {
+              "x": 1,
+              "y": 7
+            }
+          ],
+          "transform": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 0,
+            "height": 0,
+            "depth": 0
+          },
+          "material": {
+            "id": "wood-floor",
+            "name": "Living Room",
+            "color": "#ffffff",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0,
+            "texture": "wood-floor",
+            "textureScale": 1.8
+          }
+        },
+        {
+          "id": "r-11",
+          "type": "room",
+          "name": "Bedroom",
+          "roomType": "bedroom",
+          "boundary": [
+            {
+              "x": 5,
+              "y": 1
+            },
+            {
+              "x": 9,
+              "y": 1
+            },
+            {
+              "x": 9,
+              "y": 7
+            },
+            {
+              "x": 5,
+              "y": 7
+            }
+          ],
+          "transform": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 0,
+            "height": 0,
+            "depth": 0
+          },
+          "material": {
+            "id": "tile-ivory",
+            "name": "Bedroom",
+            "color": "#ffffff",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0,
+            "texture": "tiles-ivory",
+            "textureScale": 1.2
+          }
+        },
+        {
+          "id": "f-12",
+          "type": "furniture",
+          "name": "King Bed",
+          "catalogId": "bed-king",
+          "transform": {
+            "position": {
+              "x": 7,
+              "y": 2.6,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 1.8,
+            "height": 1.2,
+            "depth": 2.1
+          },
+          "material": {
+            "id": "fabric-linen",
+            "name": "Fabric · Linen",
+            "color": "#cfc4ae",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          },
+          "meta": {}
+        },
+        {
+          "id": "f-13",
+          "type": "furniture",
+          "name": "Sofa · 3 Seater",
+          "catalogId": "sofa-3",
+          "transform": {
+            "position": {
+              "x": 3,
+              "y": 5.6,
+              "z": 0
+            },
+            "rotation": 3.141592653589793,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 2.1,
+            "height": 0.8,
+            "depth": 0.95
+          },
+          "material": {
+            "id": "fabric-linen",
+            "name": "Fabric · Linen",
+            "color": "#4a4d52",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          },
+          "meta": {}
+        },
+        {
+          "id": "f-14",
+          "type": "furniture",
+          "name": "Coffee Table",
+          "catalogId": "coffee-table",
+          "transform": {
+            "position": {
+              "x": 3,
+              "y": 4.2,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 1.1,
+            "height": 0.42,
+            "depth": 0.6
+          },
+          "material": {
+            "id": "fabric-linen",
+            "name": "Fabric · Linen",
+            "color": "#7a563d",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          },
+          "meta": {}
+        },
+        {
+          "id": "f-15",
+          "type": "furniture",
+          "name": "Armchair",
+          "catalogId": "armchair",
+          "transform": {
+            "position": {
+              "x": 1.8,
+              "y": 4.2,
+              "z": 0
+            },
+            "rotation": 1.5707963267948966,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 0.85,
+            "height": 0.8,
+            "depth": 0.85
+          },
+          "material": {
+            "id": "fabric-linen",
+            "name": "Fabric · Linen",
+            "color": "#a5714b",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          },
+          "meta": {}
+        },
+        {
+          "id": "f-16",
+          "type": "furniture",
+          "name": "Plant · Large",
+          "catalogId": "plant-large",
+          "transform": {
+            "position": {
+              "x": 1.7,
+              "y": 1.7,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 0.6,
+            "height": 1.4,
+            "depth": 0.6
+          },
+          "material": {
+            "id": "fabric-linen",
+            "name": "Fabric · Linen",
+            "color": "#7fae6b",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          },
+          "meta": {}
+        },
+        {
+          "id": "f-17",
+          "type": "furniture",
+          "name": "Floor Lamp",
+          "catalogId": "lamp-floor",
+          "transform": {
+            "position": {
+              "x": 4.4,
+              "y": 1.6,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 0.4,
+            "height": 1.6,
+            "depth": 0.4
+          },
+          "material": {
+            "id": "fabric-linen",
+            "name": "Fabric · Linen",
+            "color": "#9aa1a8",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          },
+          "meta": {}
+        },
+        {
+          "id": "f-18",
+          "type": "furniture",
+          "name": "Tree · Leafy",
+          "catalogId": "tree-leafy",
+          "transform": {
+            "position": {
+              "x": 10.8,
+              "y": 7.8,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 3.2,
+            "height": 4.5,
+            "depth": 3.2
+          },
+          "material": {
+            "id": "fabric-linen",
+            "name": "Fabric · Linen",
+            "color": "#7fae6b",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          },
+          "meta": {}
+        },
+        {
+          "id": "rf-19",
+          "type": "roof",
+          "name": "Roof",
+          "roofStyle": "gable",
+          "pitch": 30,
+          "overhang": 0.45,
+          "parapetHeight": 0,
+          "skylights": [
+            {
+              "x": -1.5,
+              "y": -1.2,
+              "width": 0.8,
+              "depth": 1
+            }
+          ],
+          "dormers": [
+            {
+              "x": 1.2,
+              "y": 1.7,
+              "width": 1.3,
+              "height": 1.4
+            }
+          ],
+          "transform": {
+            "position": {
+              "x": 5,
+              "y": 4,
+              "z": 3
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 8.3,
+            "height": 0,
+            "depth": 6.3,
+            "thickness": 0.15
+          },
+          "material": {
+            "id": "roof-tiles",
+            "name": "Roof · Clay Tiles",
+            "color": "#ffffff",
+            "finish": "textured",
+            "roughness": 1,
+            "metalness": 0,
+            "texture": "roof-tiles",
+            "textureScale": 1.5
+          }
+        },
+        {
+          "id": "t-20",
+          "type": "note",
+          "name": "Text",
+          "text": "Starter Cottage — 48 m² carpet",
+          "transform": {
+            "position": {
+              "x": 6,
+              "y": 8.4,
+              "z": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 6.720000000000001,
+            "depth": 0.52,
+            "height": 0.4
+          },
+          "material": {
+            "id": "paint-charcoal",
+            "name": "Paint · Charcoal",
+            "color": "#57503f",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          }
+        }
+      ]
+    }
+  ],
+  "facades": [
+    {
+      "id": "fac-front",
+      "name": "Front Elevation",
+      "width": 12,
+      "height": 7,
+      "backdropColor": "#e8e2d8",
+      "elements": [
+        {
+          "id": "fe-21",
+          "type": "facade-element",
+          "name": "Main Door",
+          "catalogId": "fd-main",
+          "transform": {
+            "position": {
+              "x": 2,
+              "y": 0,
+              "z": 1.05
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 1,
+            "height": 2.1,
+            "depth": 0.1
+          },
+          "material": {
+            "id": "concrete",
+            "name": "Main Door",
+            "color": "#9a6b43",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          }
+        },
+        {
+          "id": "fe-22",
+          "type": "facade-element",
+          "name": "Window · 4 Pane",
+          "catalogId": "fw-4pane",
+          "transform": {
+            "position": {
+              "x": 5.5,
+              "y": 0,
+              "z": 1.5
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 1.2,
+            "height": 1.2,
+            "depth": 0.1
+          },
+          "material": {
+            "id": "concrete",
+            "name": "Window · 4 Pane",
+            "color": "#aac9dd",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          }
+        },
+        {
+          "id": "fe-23",
+          "type": "facade-element",
+          "name": "Window · Shutters",
+          "catalogId": "fw-shutters",
+          "transform": {
+            "position": {
+              "x": 8.5,
+              "y": 0,
+              "z": 1.5
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 1.9,
+            "height": 1.2,
+            "depth": 0.1
+          },
+          "material": {
+            "id": "concrete",
+            "name": "Window · Shutters",
+            "color": "#a8754a",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          }
+        },
+        {
+          "id": "fe-24",
+          "type": "facade-element",
+          "name": "Entry Canopy",
+          "catalogId": "fs-canopy",
+          "transform": {
+            "position": {
+              "x": 2,
+              "y": 0,
+              "z": 2.5
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 1.8,
+            "height": 0.35,
+            "depth": 0.1
+          },
+          "material": {
+            "id": "concrete",
+            "name": "Entry Canopy",
+            "color": "#2e3033",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          }
+        },
+        {
+          "id": "fe-25",
+          "type": "facade-element",
+          "name": "Planter Box",
+          "catalogId": "fl-planter",
+          "transform": {
+            "position": {
+              "x": 4,
+              "y": 0,
+              "z": 0.22
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 1,
+            "height": 0.45,
+            "depth": 0.1
+          },
+          "material": {
+            "id": "concrete",
+            "name": "Planter Box",
+            "color": "#b9b7b1",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          }
+        },
+        {
+          "id": "fe-26",
+          "type": "facade-element",
+          "name": "Tree",
+          "catalogId": "fl-tree",
+          "transform": {
+            "position": {
+              "x": 11,
+              "y": 0,
+              "z": 1.75
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          "dimensions": {
+            "width": 1.8,
+            "height": 3.5,
+            "depth": 0.1
+          },
+          "material": {
+            "id": "concrete",
+            "name": "Tree",
+            "color": "#7fae6b",
+            "finish": "matte",
+            "roughness": 0.9,
+            "metalness": 0
+          }
+        }
+      ]
+    }
+  ]
+}

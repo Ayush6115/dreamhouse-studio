@@ -1,0 +1,33 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      three:
+        patterns:
+          - three
+          - '@react-three/*'
+          - '@types/three'
+          - postprocessing
+      react:
+        patterns:
+          - react
+          - react-dom
+          - '@types/react*'
+      dev-tooling:
+        patterns:
+          - vite
+          - vitest
+          - typescript
+          - typescript-eslint
+          - eslint*
+          - '@vitejs/*'
+          - playwright
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

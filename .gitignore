@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Downloaded CC0 asset pack — fetched reproducibly by `node scripts/fetch-assets.mjs`.
+# Keeping ~90 MB of binaries out of version control; the license note stays tracked.
+public/assets/models/
+public/assets/textures/
+public/assets/hdri/
+
+# Test artifacts
+test-results/
+playwright-report/
+
+# Editor / OS / local tooling
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.claude/
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local

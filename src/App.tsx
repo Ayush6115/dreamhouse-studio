@@ -159,7 +159,7 @@ export default function App() {
   const viewMode = useDesignStore((s) => s.viewMode);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col overflow-hidden">
       <TopBar />
       <div className="relative flex min-h-0 flex-1">
         <ToolPalette />
@@ -172,8 +172,35 @@ export default function App() {
         <PropertiesPanel />
         <Toast />
         <ProjectsDialog />
+        <MobilePanelToggle />
       </div>
       <StatusBar />
     </div>
+  );
+}
+
+/** Small-screen button that opens the properties panel as an overlay. */
+function MobilePanelToggle() {
+  const open = useUiStore((s) => s.mobilePanelOpen);
+  const setOpen = useUiStore((s) => s.setMobilePanelOpen);
+  const selectedCount = useDesignStore((s) => s.selectedIds.length);
+  if (open) return null;
+  return (
+    <button
+      onClick={() => setOpen(true)}
+      aria-label="Open properties panel"
+      className="absolute bottom-4 right-4 z-30 flex h-11 w-11 items-center justify-center rounded-full
+        bg-accent-strong text-white shadow-xl transition-colors hover:bg-accent lg:hidden"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <path d="M15 3v18" />
+      </svg>
+      {selectedCount > 0 && (
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-warn px-1 text-[9px] font-bold text-black">
+          {selectedCount}
+        </span>
+      )}
+    </button>
   );
 }

@@ -32,6 +32,7 @@ export function ElevationCanvas() {
   const [viewport, setViewport] = useState<Viewport>({ x: 140, y: 480, scale: 55 });
   const panRef = useRef<{ pointer: Point; vp: Viewport } | null>(null);
   const dragRef = useRef<DragState | null>(null);
+  const pinchRef = useRef<{ dist: number; center: { x: number; y: number } } | null>(null);
   const [ghost, setGhost] = useState<Point | null>(null);
 
   const facade = useActiveFacade();
@@ -167,13 +168,58 @@ export function ElevationCanvas() {
     setViewport((vp) => zoomAt(vp, pointer, e.evt.deltaY > 0 ? 1 / 1.1 : 1.1));
   };
 
+  // ---- touch: single finger places/drags, two fingers pinch-zoom and pan.
+  const asMouse = (e: KonvaEventObject<TouchEvent>): KonvaEventObject<MouseEvent> =>
+    ({ ...e, evt: { button: 0, shiftKey: false } }) as unknown as KonvaEventObject<MouseEvent>;
+  const touchPoints = (e: KonvaEventObject<TouchEvent>) => {
+    const rect = stageRef.current?.container().getBoundingClientRect();
+    if (!rect) return [];
+    return Array.from(e.evt.touches).map((t) => ({ x: t.clientX - rect.left, y: t.clientY - rect.top }));
+  };
+  const onTouchStart = (e: KonvaEventObject<TouchEvent>) => {
+    if (e.evt.touches.length >= 2) {
+      onMouseUp();
+      const [p1, p2] = touchPoints(e);
+      pinchRef.current = {
+        dist: Math.hypot(p2.x - p1.x, p2.y - p1.y),
+        center: { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 },
+      };
+      return;
+    }
+    onMouseDown(asMouse(e));
+  };
+  const onTouchMove = (e: KonvaEventObject<TouchEvent>) => {
+    e.evt.preventDefault();
+    if (e.evt.touches.length >= 2 && pinchRef.current) {
+      const [p1, p2] = touchPoints(e);
+      const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      const center = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+      const prev = pinchRef.current;
+      setViewport((vp) => {
+        const zoomed = zoomAt(vp, center, dist / Math.max(1e-6, prev.dist));
+        return { ...zoomed, x: zoomed.x + center.x - prev.center.x, y: zoomed.y + center.y - prev.center.y };
+      });
+      pinchRef.current = { dist, center };
+      return;
+    }
+    onMouseMove(asMouse(e));
+  };
+  const onTouchEnd = (e: KonvaEventObject<TouchEvent>) => {
+    if (e.evt.touches.length < 2) pinchRef.current = null;
+    onMouseUp();
+  };
+
   const ghostDef = tool === 'facade-item' && activeCatalogId ? facadeItemById(activeCatalogId) : undefined;
 
   return (
     <div
       ref={ref}
       className="relative h-full w-full overflow-hidden"
-      style={{ background: 'var(--color-paper)', cursor: tool === 'facade-item' ? 'crosshair' : 'default' }}
+      style={{
+        background: 'var(--color-paper)',
+        cursor: tool === 'facade-item' ? 'crosshair' : 'default',
+        touchAction: 'none',
+      }}
     >
       {size.width > 0 && (
         <Stage
@@ -188,6 +234,9 @@ export function ElevationCanvas() {
           onMouseDown={onMouseDown}
           onMouseMove={onMouseMove}
           onMouseUp={onMouseUp}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
           onMouseLeave={() => {
             setCursorWorld(null);
             setGhost(null);

@@ -39,19 +39,23 @@ export function StatusBar() {
 
   return (
     <footer className="app-chrome flex h-8 shrink-0 items-center gap-4 overflow-hidden border-t border-edge bg-surface-1 px-3 text-[11px]">
-      <span className="truncate text-ink-faint">
+      <span className="hidden truncate text-ink-faint md:inline">
         {viewMode === '3d' ? 'Drag to orbit · scroll to zoom · right-drag to pan' : (TOOL_HINTS[tool] ?? '')}
       </span>
       <div className="flex-1" />
-      <div className="flex items-center gap-4">
-        <Chip label="Plot" value={formatArea(metrics.plotArea, unit)} />
-        <Chip
-          label="Buildable"
-          value={metrics.buildableArea === null ? '—' : formatArea(metrics.buildableArea, unit)}
-        />
+      <div className="flex items-center gap-3 overflow-hidden sm:gap-4">
+        <span className="hidden sm:contents">
+          <Chip label="Plot" value={formatArea(metrics.plotArea, unit)} />
+          <Chip
+            label="Buildable"
+            value={metrics.buildableArea === null ? '—' : formatArea(metrics.buildableArea, unit)}
+          />
+        </span>
         <Chip label="Built-up" value={formatArea(metrics.builtUpArea, unit)} />
         <Chip label="Carpet" value={formatArea(metrics.carpetArea, unit)} />
-        <Chip label="Walls" value={formatLength(metrics.totalWallLength, unit)} />
+        <span className="hidden sm:contents">
+          <Chip label="Walls" value={formatLength(metrics.totalWallLength, unit)} />
+        </span>
       </div>
       <div className="flex-1" />
       <div className="flex items-center gap-3 tabular-nums text-ink-faint">

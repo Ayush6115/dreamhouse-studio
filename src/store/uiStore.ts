@@ -44,6 +44,9 @@ interface UiState {
   /** Raster resolution for exports (persisted). */
   exportQuality: 'draft' | 'standard' | 'high' | 'ultra';
   setExportQuality: (q: 'draft' | 'standard' | 'high' | 'ultra') => void;
+  /** Properties panel visibility on small screens (overlay mode). */
+  mobilePanelOpen: boolean;
+  setMobilePanelOpen: (open: boolean) => void;
   setCursorWorld: (p: Point | null) => void;
   setZoom: (z: number) => void;
   showToast: (message: string) => void;
@@ -69,6 +72,8 @@ export const useUiStore = create<UiState>()((set, get) => ({
   setRenderQuality: (renderQuality) => set({ renderQuality }),
   selectedPlotVertices: [],
   setSelectedPlotVertices: (selectedPlotVertices) => set({ selectedPlotVertices }),
+  mobilePanelOpen: false,
+  setMobilePanelOpen: (mobilePanelOpen) => set({ mobilePanelOpen }),
   exportQuality: (() => {
     try {
       const v = localStorage.getItem('dreamhouse:export-quality');

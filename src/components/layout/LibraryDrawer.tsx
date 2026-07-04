@@ -132,7 +132,10 @@ export function LibraryDrawer() {
   if (!open || viewMode === '3d') return null;
 
   return (
-    <div className="app-chrome anim-slide-in-left flex w-72 shrink-0 flex-col border-r border-edge bg-surface-1">
+    <div
+      className="app-chrome anim-slide-in-left absolute inset-y-0 left-12 z-30 flex w-72 shrink-0 flex-col
+        border-r border-edge bg-surface-1 shadow-2xl lg:static lg:left-auto lg:z-auto lg:shadow-none"
+    >
       <div className="flex h-10 shrink-0 items-center justify-between border-b border-edge-soft px-3">
         <span className="text-xs font-semibold uppercase tracking-wider text-ink-faint">
           {isElevation ? 'Façade Store' : 'Interior Store'}

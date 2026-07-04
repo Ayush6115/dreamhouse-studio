@@ -50,6 +50,16 @@ textarea {
   user-select: text;
 }
 
+/* iOS zooms the page when focusing inputs smaller than 16px — bump control
+   font sizes on touch-sized screens only. */
+@media (max-width: 1023px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 /* Micro-animations for menus, drawers and dialogs. */
 @keyframes dh-fade-in {
   from {

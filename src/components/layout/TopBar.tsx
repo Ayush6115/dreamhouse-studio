@@ -45,7 +45,7 @@ export function TopBar() {
   };
 
   return (
-    <header className="app-chrome flex h-12 shrink-0 items-center gap-2 border-b border-edge bg-surface-1 px-3">
+    <header className="app-chrome flex h-12 shrink-0 items-center gap-1.5 overflow-x-auto border-b border-edge bg-surface-1 px-2 sm:gap-2 sm:px-3">
       {/* brand */}
       <div className="mr-1 flex items-center gap-2">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -53,7 +53,7 @@ export function TopBar() {
           <path d="M6 10.5V20h12v-9.5" stroke="#9aa6b7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M10 20v-5h4v5" stroke="#4f8cff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <span className="text-sm font-semibold tracking-tight">DreamHouse Studio</span>
+        <span className="hidden text-sm font-semibold tracking-tight min-[1180px]:inline">DreamHouse Studio</span>
       </div>
 
       <input
@@ -61,8 +61,8 @@ export function TopBar() {
         defaultValue={doc.name}
         onBlur={(e) => setDocName(e.target.value.trim() || 'Untitled Home')}
         onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-        className="h-8 w-40 rounded-md border border-transparent bg-transparent px-2 text-sm text-ink-dim
-          hover:border-edge focus:border-accent focus:text-ink focus:outline-none"
+        className="hidden h-8 w-40 rounded-md border border-transparent bg-transparent px-2 text-sm text-ink-dim
+          hover:border-edge focus:border-accent focus:text-ink focus:outline-none md:block"
         title="Project name"
       />
 
@@ -71,7 +71,7 @@ export function TopBar() {
           value={activeLevelId}
           onChange={(e) => setActiveLevel(e.target.value)}
           title="Active floor"
-          className="h-8 rounded-md border border-edge bg-surface-2 px-1.5 text-xs text-ink focus:border-accent focus:outline-none"
+          className="hidden h-8 rounded-md border border-edge bg-surface-2 px-1.5 text-xs text-ink focus:border-accent focus:outline-none sm:block"
         >
           {[...doc.levels]
             .sort((a, b) => b.elevation - a.elevation)
@@ -83,14 +83,16 @@ export function TopBar() {
         </select>
       )}
 
-      <div className="mx-1 h-6 w-px bg-edge" />
+      <div className="mx-1 hidden h-6 w-px bg-edge sm:block" />
 
       <IconButton label="Projects" onClick={() => setProjectsOpen(true)}>
         <Layout size={16} />
       </IconButton>
-      <IconButton label="Import (.dreamhouse.json)" onClick={() => fileRef.current?.click()}>
-        <FolderOpen size={16} />
-      </IconButton>
+      <span className="hidden sm:contents">
+        <IconButton label="Import (.dreamhouse.json)" onClick={() => fileRef.current?.click()}>
+          <FolderOpen size={16} />
+        </IconButton>
+      </span>
       <input
         ref={fileRef}
         type="file"
@@ -101,11 +103,13 @@ export function TopBar() {
           e.target.value = '';
         }}
       />
-      <IconButton label="Save project file (Ctrl+S)" onClick={() => downloadDocumentJSON(doc)}>
-        <Save size={16} />
-      </IconButton>
+      <span className="hidden sm:contents">
+        <IconButton label="Save project file (Ctrl+S)" onClick={() => downloadDocumentJSON(doc)}>
+          <Save size={16} />
+        </IconButton>
+      </span>
 
-      <div className="mx-1 h-6 w-px bg-edge" />
+      <div className="mx-1 hidden h-6 w-px bg-edge sm:block" />
 
       <IconButton label="Undo (Ctrl+Z)" onClick={undo} disabled={!canUndo}>
         <Redo2 size={16} style={{ transform: 'scaleX(-1)' }} />
@@ -131,7 +135,7 @@ export function TopBar() {
       {viewMode === '3d' && (
         <>
           {dayNight === 'day' && (
-            <label className="flex items-center gap-1.5 text-[10px] text-ink-faint" title="Sun position (time of day)">
+            <label className="hidden items-center gap-1.5 text-[10px] text-ink-faint md:flex" title="Sun position (time of day)">
               <span className="tabular-nums">{String(Math.floor(sunHour)).padStart(2, '0')}:{sunHour % 1 ? '30' : '00'}</span>
               <input
                 type="range"
@@ -159,21 +163,25 @@ export function TopBar() {
           </IconButton>
         </>
       )}
-      <IconButton label="Toggle snapping" active={snapEnabled} onClick={() => setSnapEnabled(!snapEnabled)}>
-        <Magnet size={16} />
-      </IconButton>
-      <IconButton label="Toggle dimensions" active={showDimensions} onClick={() => setShowDimensions(!showDimensions)}>
-        <Ruler size={16} />
-      </IconButton>
+      <span className="hidden sm:contents">
+        <IconButton label="Toggle snapping" active={snapEnabled} onClick={() => setSnapEnabled(!snapEnabled)}>
+          <Magnet size={16} />
+        </IconButton>
+        <IconButton label="Toggle dimensions" active={showDimensions} onClick={() => setShowDimensions(!showDimensions)}>
+          <Ruler size={16} />
+        </IconButton>
+      </span>
 
-      <Segmented
-        value={doc.unitSystem}
-        onChange={setUnitSystem}
-        options={[
-          { value: 'metric', label: 'm', title: 'Metric' },
-          { value: 'imperial', label: 'ft', title: 'Imperial' },
-        ]}
-      />
+      <span className="hidden md:contents">
+        <Segmented
+          value={doc.unitSystem}
+          onChange={setUnitSystem}
+          options={[
+            { value: 'metric', label: 'm', title: 'Metric' },
+            { value: 'imperial', label: 'ft', title: 'Imperial' },
+          ]}
+        />
+      </span>
 
       <ExportMenu />
     </header>

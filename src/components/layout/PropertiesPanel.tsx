@@ -1,4 +1,5 @@
 import { BUILDABLE_ID, PLOT_ID, useDesignStore } from '../../store/designStore';
+import { useUiStore } from '../../store/uiStore';
 import type { Element } from '../../types';
 import { Button } from '../ui/Button';
 import { DocumentPanel } from '../panels/DocumentPanel';
@@ -19,6 +20,8 @@ export function PropertiesPanel() {
   const activeLevelId = useDesignStore((s) => s.activeLevelId);
   const pushHistory = useDesignStore((s) => s.pushHistory);
   const removeElements = useDesignStore((s) => s.removeElements);
+  const mobileOpen = useUiStore((s) => s.mobilePanelOpen);
+  const setMobileOpen = useUiStore((s) => s.setMobilePanelOpen);
 
   const level = doc.levels.find((l) => l.id === activeLevelId);
   const findElement = (id: string): Element | undefined =>
@@ -87,7 +90,17 @@ export function PropertiesPanel() {
     selectedIds.length === 1 && selectedIds[0] !== PLOT_ID && findElement(selectedIds[0]) !== undefined;
 
   return (
-    <aside className="app-chrome flex w-72 shrink-0 flex-col overflow-y-auto border-l border-edge bg-surface-1">
+    <aside
+      className={`app-chrome w-72 shrink-0 flex-col overflow-y-auto border-l border-edge bg-surface-1
+        ${mobileOpen ? 'fixed inset-y-0 right-0 z-40 flex shadow-2xl' : 'hidden'} lg:static lg:z-auto lg:flex lg:shadow-none`}
+    >
+      {/* mobile-only close */}
+      <button
+        onClick={() => setMobileOpen(false)}
+        className="flex h-9 shrink-0 items-center justify-center gap-1 border-b border-edge-soft text-xs text-ink-dim lg:hidden"
+      >
+        Close panel
+      </button>
       {body}
       {showDelete && (
         <div className="px-3 py-3">

@@ -123,7 +123,7 @@ export function ExportMenu() {
           disabled:opacity-50`}
       >
         <Download size={15} />
-        {busy ? 'Exporting…' : 'Export'}
+        <span className="hidden sm:inline">{busy ? 'Exporting…' : 'Export'}</span>
       </button>
       {open && (
         <div className="absolute right-0 top-10 z-50 w-64 rounded-lg border border-edge bg-surface-2 p-1 shadow-xl">

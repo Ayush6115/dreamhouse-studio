@@ -124,6 +124,61 @@ export function PlanCanvas() {
     if (world) tools.onDblClick(world, e);
   };
 
+  // ---- touch: single finger draws/selects, two fingers pinch-zoom and pan.
+  const pinchRef = useRef<{ dist: number; center: { x: number; y: number } } | null>(null);
+
+  const asMouse = (e: KonvaEventObject<TouchEvent>): KonvaEventObject<MouseEvent> =>
+    ({ ...e, evt: { button: 0, shiftKey: false } }) as unknown as KonvaEventObject<MouseEvent>;
+
+  const touchPoints = (e: KonvaEventObject<TouchEvent>) => {
+    const rect = stageRef.current?.container().getBoundingClientRect();
+    if (!rect) return [];
+    return Array.from(e.evt.touches).map((t) => ({ x: t.clientX - rect.left, y: t.clientY - rect.top }));
+  };
+
+  const onTouchStart = (e: KonvaEventObject<TouchEvent>) => {
+    if (e.evt.touches.length >= 2) {
+      // Entering pinch: cancel any in-progress single-touch gesture.
+      tools.onMouseUp({ x: 0, y: 0 }, asMouse(e));
+      const [p1, p2] = touchPoints(e);
+      pinchRef.current = {
+        dist: Math.hypot(p2.x - p1.x, p2.y - p1.y),
+        center: { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 },
+      };
+      return;
+    }
+    const stage = stageRef.current;
+    const world = stage && pointerWorld(stage, viewport);
+    if (world) tools.onMouseDown(world, asMouse(e));
+  };
+
+  const onTouchMove = (e: KonvaEventObject<TouchEvent>) => {
+    e.evt.preventDefault();
+    if (e.evt.touches.length >= 2 && pinchRef.current) {
+      const [p1, p2] = touchPoints(e);
+      const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      const center = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+      const prev = pinchRef.current;
+      setViewport((vp) => {
+        const zoomed = zoomAt(vp, center, dist / Math.max(1e-6, prev.dist));
+        return { ...zoomed, x: zoomed.x + center.x - prev.center.x, y: zoomed.y + center.y - prev.center.y };
+      });
+      pinchRef.current = { dist, center };
+      return;
+    }
+    const stage = stageRef.current;
+    const world = stage && pointerWorld(stage, viewport);
+    if (world) {
+      setCursorWorld(world);
+      tools.onMouseMove(world, asMouse(e));
+    }
+  };
+
+  const onTouchEnd = (e: KonvaEventObject<TouchEvent>) => {
+    if (e.evt.touches.length < 2) pinchRef.current = null;
+    tools.onMouseUp({ x: 0, y: 0 }, asMouse(e));
+  };
+
   const onContextMenu = (e: KonvaEventObject<MouseEvent>) => {
     e.evt.preventDefault();
     // Drawing tools consume right-clicks (undo last point / cancel / delete vertex).
@@ -150,6 +205,7 @@ export function PlanCanvas() {
       style={{
         background: 'var(--color-paper)',
         cursor: spaceDown || panRef.current ? 'grab' : tools.cursor,
+        touchAction: 'none',
       }}
     >
       {size.width > 0 && (
@@ -166,6 +222,10 @@ export function PlanCanvas() {
           onMouseMove={onMouseMove}
           onMouseUp={onMouseUp}
           onDblClick={onDblClick}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+          onDblTap={(e) => onDblClick(e as unknown as KonvaEventObject<MouseEvent>)}
           onMouseLeave={() => setCursorWorld(null)}
           onContextMenu={onContextMenu}
         >

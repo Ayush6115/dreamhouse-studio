@@ -43,7 +43,7 @@ Make residential design approachable for homeowners while remaining precise enou
 Requires Node.js 20.11 or newer.
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Ayush6115/dreamhouse-studio.git
 cd dreamhouse-studio
 npm install
 npm run fetch-assets   # one-time: downloads the CC0 asset pack (~90 MB)

@@ -5,7 +5,7 @@ Thank you for considering a contribution. This document covers the development s
 ## Development setup
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Ayush6115/dreamhouse-studio.git
 cd dreamhouse-studio
 npm install
 npm run fetch-assets   # optional but recommended (CC0 asset pack)

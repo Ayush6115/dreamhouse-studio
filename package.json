@@ -4,6 +4,14 @@
   "version": "1.0.0",
   "description": "Design a house in the browser — plot, parametric walls, roofs, interiors, elevations, 3D and drawing exports — without CAD knowledge.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ayush6115/dreamhouse-studio.git"
+  },
+  "homepage": "https://github.com/Ayush6115/dreamhouse-studio#readme",
+  "bugs": {
+    "url": "https://github.com/Ayush6115/dreamhouse-studio/issues"
+  },
   "type": "module",
   "engines": {
     "node": ">=20.11"

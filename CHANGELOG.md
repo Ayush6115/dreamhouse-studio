@@ -37,4 +37,4 @@ First public release. Highlights across the pre-release development line:
 - Per-edge setback overrides and a hand-editable buildable footprint with continuous legal validation (hard errors outside the plot, acceptable warnings inside setbacks).
 - Export quality selector (1× to 5×); free text annotations; dimension labels always placed outside dimension lines; hover-highlighted vertex handles.
 
-[1.0.0]: https://example.com/releases/1.0.0
+[1.0.0]: https://github.com/Ayush6115/dreamhouse-studio/releases/tag/v1.0.0

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Download } from 'lucide-react';
 import { useDesignStore } from '../../store/designStore';
 import { useUiStore } from '../../store/uiStore';
@@ -16,16 +17,37 @@ import {
 export function ExportMenu() {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  // The menu renders in a body portal (fixed position) so it floats above the
+  // app instead of being clipped/scrolled inside the overflow-managed header.
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
   const showToast = useUiStore((s) => s.showToast);
+
+  const toggle = () => {
+    if (open) {
+      setOpen(false);
+      return;
+    }
+    const rect = btnRef.current?.getBoundingClientRect();
+    if (rect) setMenuPos({ top: rect.bottom + 6, right: Math.max(8, window.innerWidth - rect.right) });
+    setOpen(true);
+  };
 
   useEffect(() => {
     if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      const t = e.target as HTMLElement;
+      if (!t.closest('[data-export-menu]') && !btnRef.current?.contains(t)) setOpen(false);
     };
+    const onResize = () => setOpen(false);
     window.addEventListener('mousedown', onDown);
-    return () => window.removeEventListener('mousedown', onDown);
+    window.addEventListener('touchstart', onDown);
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('mousedown', onDown);
+      window.removeEventListener('touchstart', onDown);
+      window.removeEventListener('resize', onResize);
+    };
   }, [open]);
 
   const SILENT = 'silent-export-abort';
@@ -113,20 +135,27 @@ export function ExportMenu() {
   ];
 
   return (
-    <div className="relative" ref={ref}>
+    <>
       <button
+        ref={btnRef}
         title="Export"
-        onClick={() => setOpen(!open)}
+        onClick={toggle}
         disabled={busy}
-        className={`inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors
+        className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors
           ${open ? 'bg-accent-soft text-accent' : 'bg-accent-strong text-white hover:bg-accent'}
           disabled:opacity-50`}
       >
         <Download size={15} />
         <span className="hidden sm:inline">{busy ? 'Exporting…' : 'Export'}</span>
       </button>
-      {open && (
-        <div className="absolute right-0 top-10 z-50 w-64 rounded-lg border border-edge bg-surface-2 p-1 shadow-xl">
+      {open &&
+        menuPos &&
+        createPortal(
+          <div
+            data-export-menu
+            className="anim-fade-in fixed z-50 max-h-[75vh] w-64 overflow-y-auto rounded-lg border border-edge bg-surface-2 p-1 shadow-xl"
+            style={{ top: menuPos.top, right: menuPos.right }}
+          >
           {/* raster quality */}
           <div className="flex items-center gap-1 border-b border-edge-soft px-2 pb-1.5 pt-1">
             <span className="mr-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
@@ -161,12 +190,13 @@ export function ExportMenu() {
               {item.hint && <span className="text-[10px] text-ink-faint">{item.hint}</span>}
             </button>
           ))}
-          <p className="px-2.5 py-1.5 text-[10px] leading-snug text-ink-faint">
-            Quality scales PNG/PDF sheet resolution (SVG is always infinite). 3D snapshots use the 3D
-            tab's screen resolution.
-          </p>
-        </div>
-      )}
-    </div>
+            <p className="px-2.5 py-1.5 text-[10px] leading-snug text-ink-faint">
+              Quality scales PNG/PDF sheet resolution (SVG is always infinite). 3D snapshots use the
+              3D tab's screen resolution.
+            </p>
+          </div>,
+          document.body,
+        )}
+    </>
   );
 }

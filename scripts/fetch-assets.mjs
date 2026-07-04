@@ -132,11 +132,16 @@ async function fetchHdri(id) {
 
 // ---------------------------------------------------------------- textures
 function extractZip(zip, dest) {
-  execFileSync('powershell', [
-    '-NoProfile',
-    '-Command',
-    `Expand-Archive -LiteralPath "${zip}" -DestinationPath "${dest}" -Force`,
-  ]);
+  if (process.platform === 'win32') {
+    execFileSync('powershell', [
+      '-NoProfile',
+      '-Command',
+      `Expand-Archive -LiteralPath "${zip}" -DestinationPath "${dest}" -Force`,
+    ]);
+  } else {
+    mkdirSync(dest, { recursive: true });
+    execFileSync('unzip', ['-oq', zip, '-d', dest]);
+  }
 }
 
 async function fetchTexture(key, acgId) {

@@ -17,6 +17,7 @@ import { trimPiecesToRoofs, wallPieces } from './geometry3d';
 import { FurnitureModel } from './furniture3d';
 import { GltfModel } from './GltfModel';
 import { RoofMesh } from './RoofMesh';
+import { assetUrl } from '../../assetUrl';
 import { ElementMaterial, MaterialErrorBoundary } from './materials3d';
 import { exportRegistry } from '../export/registry';
 
@@ -27,8 +28,8 @@ import { exportRegistry } from '../export/registry';
  * Orbit + zoom camera only (per scope).
  */
 
-const HDRI_DAY = '/assets/hdri/kloofendal_48d_partly_cloudy_puresky_1k.hdr';
-const HDRI_NIGHT = '/assets/hdri/moonless_golf_1k.hdr';
+const HDRI_DAY = assetUrl('assets/hdri/kloofendal_48d_partly_cloudy_puresky_1k.hdr');
+const HDRI_NIGHT = assetUrl('assets/hdri/moonless_golf_1k.hdr');
 
 /** Extrude a plan polygon between two heights (above `baseY`). */
 function PrismMesh({
@@ -374,7 +375,7 @@ function Items3D({ level, night }: { level: Level; night: boolean }) {
                 <MaterialErrorBoundary fallback={parametric}>
                   <Suspense fallback={parametric}>
                     <GltfModel
-                      url={`/assets/models/${def.glb}/${def.glb}.gltf`}
+                      url={assetUrl(`assets/models/${def.glb}/${def.glb}.gltf`)}
                       w={w}
                       d={d}
                       h={h}
@@ -444,9 +445,9 @@ const GROUND_RADIUS = 220;
 
 function GrassMaterial({ night }: { night: boolean }) {
   const raw = useTexture({
-    map: '/assets/textures/grass/color.jpg',
-    normalMap: '/assets/textures/grass/normal.jpg',
-    roughnessMap: '/assets/textures/grass/roughness.jpg',
+    map: assetUrl('assets/textures/grass/color.jpg'),
+    normalMap: assetUrl('assets/textures/grass/normal.jpg'),
+    roughnessMap: assetUrl('assets/textures/grass/roughness.jpg'),
   });
   const maps = useMemo(() => {
     const repeat = (GROUND_RADIUS * 2) / 3; // one tile ≈ 3 m on the ground

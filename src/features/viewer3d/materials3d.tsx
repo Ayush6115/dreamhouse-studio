@@ -2,6 +2,7 @@ import { Component, Suspense, useMemo, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { useTexture } from '@react-three/drei';
 import type { Material } from '../../types';
+import { assetUrl } from '../../assetUrl';
 
 /**
  * Shared 3D material for walls/floors/ground: PBR texture set when the
@@ -51,7 +52,7 @@ function FlatMaterial({ material, selected, side }: Props) {
 const cloneCache = new Map<string, { map: THREE.Texture; normalMap: THREE.Texture; roughnessMap: THREE.Texture }>();
 
 function TexturedMaterial({ material, selected, side }: Props) {
-  const base = `/assets/textures/${material.texture}/`;
+  const base = assetUrl(`assets/textures/${material.texture}/`);
   const raw = useTexture({
     map: `${base}color.jpg`,
     normalMap: `${base}normal.jpg`,

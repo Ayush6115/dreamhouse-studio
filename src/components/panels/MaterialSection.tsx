@@ -1,4 +1,5 @@
 import type { Element } from '../../types';
+import { assetUrl } from '../../assetUrl';
 import { MATERIALS, materialById } from '../../library/materials';
 import { useDesignStore } from '../../store/designStore';
 import { ColorField } from '../ui/ColorField';
@@ -37,7 +38,7 @@ export function MaterialSection({ element }: { element: Element }) {
               style={
                 m.texture
                   ? {
-                      backgroundImage: `url(/assets/textures/${m.texture}/color.jpg)`,
+                      backgroundImage: `url(${assetUrl(`assets/textures/${m.texture}/color.jpg`)})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                     }

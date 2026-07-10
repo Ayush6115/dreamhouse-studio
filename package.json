@@ -34,7 +34,7 @@
     "@react-three/postprocessing": "^3.0.4",
     "immer": "^10.1.1",
     "jspdf": "^3.0.0",
-    "konva": "^9.3.0",
+    "konva": "^10.3.0",
     "lucide-react": "^1.23.0",
     "polygon-clipping": "^0.15.7",
     "postprocessing": "^6.39.2",

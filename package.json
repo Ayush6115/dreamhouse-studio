@@ -32,7 +32,7 @@
     "@react-three/drei": "^10.0.0",
     "@react-three/fiber": "^9.0.0",
     "@react-three/postprocessing": "^3.0.4",
-    "immer": "^10.1.1",
+    "immer": "^11.1.11",
     "jspdf": "^3.0.0",
     "konva": "^9.3.0",
     "lucide-react": "^1.23.0",

@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { FolderOpen, Layout, Magnet, Moon, Redo2, Ruler, Save, Sparkles, Sun, Sunset } from 'lucide-react';
+import { FolderOpen, Footprints, Layout, Magnet, Moon, Redo2, Ruler, Save, Sparkles, Sun, Sunset } from 'lucide-react';
 import { useDesignStore } from '../../store/designStore';
 import { useUiStore } from '../../store/uiStore';
 import { downloadDocumentJSON, importDocumentJSON } from '../../store/persistence';
@@ -32,6 +32,8 @@ export function TopBar() {
   const setProjectsOpen = useUiStore((s) => s.setProjectsOpen);
   const renderQuality = useUiStore((s) => s.renderQuality);
   const setRenderQuality = useUiStore((s) => s.setRenderQuality);
+  const navMode = useUiStore((s) => s.navMode);
+  const setNavMode = useUiStore((s) => s.setNavMode);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const onOpenFile = async (file: File | undefined) => {
@@ -168,6 +170,13 @@ export function TopBar() {
             onClick={() => setRenderQuality(renderQuality === 'high' ? 'fast' : 'high')}
           >
             <Sparkles size={16} />
+          </IconButton>
+          <IconButton
+            label={navMode === 'walk' ? 'Exit walkthrough' : 'Walkthrough — first-person tour'}
+            active={navMode === 'walk'}
+            onClick={() => setNavMode(navMode === 'walk' ? 'orbit' : 'walk')}
+          >
+            <Footprints size={16} />
           </IconButton>
         </>
       )}

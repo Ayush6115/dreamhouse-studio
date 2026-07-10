@@ -40,6 +40,8 @@ function useGlobalHotkeys() {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
       if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT') return;
+      // WASD/R/F belong to the walkthrough while it is active.
+      if (useUiStore.getState().navMode === 'walk' && useDesignStore.getState().viewMode === '3d') return;
 
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();

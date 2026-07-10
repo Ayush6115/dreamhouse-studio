@@ -3391,7 +3391,7 @@
     {
      "id": "rf-89",
      "type": "roof",
-     "name": "Roof Slab",
+     "name": "Terrace Slab",
      "roofStyle": "flat",
      "pitch": 0,
      "overhang": 0.1,
@@ -3401,7 +3401,7 @@
      "transform": {
       "position": {
        "x": 4.7351,
-       "y": 7.8227,
+       "y": 12.0899,
        "z": 3.05
       },
       "rotation": 0,
@@ -3414,22 +3414,20 @@
      "dimensions": {
       "width": 9.6201,
       "height": 0,
-      "depth": 15.7954,
+      "depth": 7.261,
       "thickness": 0.15
      },
      "material": {
-      "id": "concrete",
-      "name": "Concrete",
-      "color": "#ffffff",
+      "id": "fascia-dark",
+      "name": "Fascia · Matte Dark",
+      "color": "#26282c",
       "finish": "matte",
-      "roughness": 1,
-      "metalness": 0,
-      "texture": "concrete",
-      "textureScale": 2
+      "roughness": 0.85,
+      "metalness": 0
      }
     },
     {
-     "id": "t-90",
+     "id": "t-134",
      "type": "note",
      "text": "COVERED ENTRANCE",
      "name": "Note",
@@ -3461,7 +3459,7 @@
      }
     },
     {
-     "id": "t-91",
+     "id": "t-135",
      "type": "note",
      "text": "6 FT FRONT SETBACK / OPEN APRON",
      "name": "Note",
@@ -3489,6 +3487,1727 @@
       "color": "#4c4c4c",
       "finish": "matte",
       "roughness": 0.9,
+      "metalness": 0
+     }
+    }
+   ]
+  },
+  {
+   "id": "lvl-first",
+   "name": "First Floor",
+   "elevation": 3.05,
+   "height": 3.05,
+   "elements": [
+    {
+     "id": "r-114",
+     "type": "room",
+     "name": "Attached Bath 3",
+     "roomType": "bathroom",
+     "boundary": [
+      {
+       "x": 0,
+       "y": 0
+      },
+      {
+       "x": 3.8207,
+       "y": 0
+      },
+      {
+       "x": 3.8207,
+       "y": 2.4384
+      },
+      {
+       "x": 0,
+       "y": 2.4384
+      }
+     ],
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0,
+      "height": 0,
+      "depth": 0
+     },
+     "material": {
+      "id": "tile-ivory",
+      "name": "Attached Bath 3",
+      "color": "#ffffff",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0,
+      "texture": "tiles",
+      "textureScale": 1.8
+     }
+    },
+    {
+     "id": "r-115",
+     "type": "room",
+     "name": "Store",
+     "roomType": "store",
+     "boundary": [
+      {
+       "x": 3.8207,
+       "y": 0
+      },
+      {
+       "x": 5.6495,
+       "y": 0
+      },
+      {
+       "x": 5.6495,
+       "y": 2.4384
+      },
+      {
+       "x": 3.8207,
+       "y": 2.4384
+      }
+     ],
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0,
+      "height": 0,
+      "depth": 0
+     },
+     "material": {
+      "id": "tile-ivory",
+      "name": "Store",
+      "color": "#ffffff",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0,
+      "texture": "tiles",
+      "textureScale": 1.8
+     }
+    },
+    {
+     "id": "r-116",
+     "type": "room",
+     "name": "Attached Bath 4",
+     "roomType": "bathroom",
+     "boundary": [
+      {
+       "x": 5.6495,
+       "y": 0
+      },
+      {
+       "x": 9.4701,
+       "y": 0
+      },
+      {
+       "x": 9.4701,
+       "y": 2.4384
+      },
+      {
+       "x": 5.6495,
+       "y": 2.4384
+      }
+     ],
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0,
+      "height": 0,
+      "depth": 0
+     },
+     "material": {
+      "id": "tile-ivory",
+      "name": "Attached Bath 4",
+      "color": "#ffffff",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0,
+      "texture": "tiles",
+      "textureScale": 1.8
+     }
+    },
+    {
+     "id": "r-117",
+     "type": "room",
+     "name": "Bedroom 3",
+     "roomType": "bedroom",
+     "boundary": [
+      {
+       "x": 0,
+       "y": 2.4384
+      },
+      {
+       "x": 3.8207,
+       "y": 2.4384
+      },
+      {
+       "x": 3.8207,
+       "y": 8.5344
+      },
+      {
+       "x": 0,
+       "y": 8.5344
+      }
+     ],
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0,
+      "height": 0,
+      "depth": 0
+     },
+     "material": {
+      "id": "wood-floor",
+      "name": "Bedroom 3",
+      "color": "#ffffff",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0,
+      "texture": "wood-floor",
+      "textureScale": 1.8
+     }
+    },
+    {
+     "id": "r-118",
+     "type": "room",
+     "name": "Lobby",
+     "roomType": "other",
+     "boundary": [
+      {
+       "x": 3.8207,
+       "y": 2.4384
+      },
+      {
+       "x": 5.6495,
+       "y": 2.4384
+      },
+      {
+       "x": 5.6495,
+       "y": 8.5344
+      },
+      {
+       "x": 3.8207,
+       "y": 8.5344
+      }
+     ],
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0,
+      "height": 0,
+      "depth": 0
+     },
+     "material": {
+      "id": "wood-floor",
+      "name": "Lobby",
+      "color": "#ffffff",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0,
+      "texture": "wood-floor",
+      "textureScale": 1.8
+     }
+    },
+    {
+     "id": "r-119",
+     "type": "room",
+     "name": "Bedroom 4",
+     "roomType": "bedroom",
+     "boundary": [
+      {
+       "x": 5.6495,
+       "y": 2.4384
+      },
+      {
+       "x": 9.4701,
+       "y": 2.4384
+      },
+      {
+       "x": 9.4701,
+       "y": 8.5344
+      },
+      {
+       "x": 5.6495,
+       "y": 8.5344
+      }
+     ],
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0,
+      "height": 0,
+      "depth": 0
+     },
+     "material": {
+      "id": "wood-floor",
+      "name": "Bedroom 4",
+      "color": "#ffffff",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0,
+      "texture": "wood-floor",
+      "textureScale": 1.8
+     }
+    },
+    {
+     "id": "r-120",
+     "type": "room",
+     "name": "Open Terrace",
+     "roomType": "balcony",
+     "boundary": [
+      {
+       "x": 0,
+       "y": 8.5344
+      },
+      {
+       "x": 9.4701,
+       "y": 8.5344
+      },
+      {
+       "x": 9.4701,
+       "y": 15.6454
+      },
+      {
+       "x": 0,
+       "y": 15.6454
+      }
+     ],
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0,
+      "height": 0,
+      "depth": 0
+     },
+     "material": {
+      "id": "paving",
+      "name": "Open Terrace",
+      "color": "#ffffff",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0,
+      "texture": "paving",
+      "textureScale": 1.8
+     }
+    },
+    {
+     "id": "w-91",
+     "type": "wall",
+     "name": "Wall",
+     "start": {
+      "x": 0,
+      "y": 0
+     },
+     "end": {
+      "x": 9.4701,
+      "y": 0
+     },
+     "transform": {
+      "position": {
+       "x": 4.7351,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 9.4701,
+      "height": 3.05,
+      "depth": 0.2286,
+      "thickness": 0.2286
+     },
+     "material": {
+      "id": "plaster-white",
+      "name": "Plaster · White",
+      "color": "#ece8df",
+      "finish": "matte",
+      "roughness": 0.95,
+      "metalness": 0,
+      "texture": "plaster",
+      "textureScale": 2.5
+     }
+    },
+    {
+     "id": "w-92",
+     "type": "wall",
+     "name": "Wall",
+     "start": {
+      "x": 9.4701,
+      "y": 0
+     },
+     "end": {
+      "x": 9.4701,
+      "y": 8.5344
+     },
+     "transform": {
+      "position": {
+       "x": 9.4701,
+       "y": 4.2672,
+       "z": 0
+      },
+      "rotation": 1.5707963267948966,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 8.5344,
+      "height": 3.05,
+      "depth": 0.2286,
+      "thickness": 0.2286
+     },
+     "material": {
+      "id": "plaster-white",
+      "name": "Plaster · White",
+      "color": "#ece8df",
+      "finish": "matte",
+      "roughness": 0.95,
+      "metalness": 0,
+      "texture": "plaster",
+      "textureScale": 2.5
+     }
+    },
+    {
+     "id": "w-93",
+     "type": "wall",
+     "name": "Wall",
+     "start": {
+      "x": 9.4701,
+      "y": 8.5344
+     },
+     "end": {
+      "x": 0,
+      "y": 8.5344
+     },
+     "transform": {
+      "position": {
+       "x": 4.7351,
+       "y": 8.5344,
+       "z": 0
+      },
+      "rotation": 3.141592653589793,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 9.4701,
+      "height": 3.05,
+      "depth": 0.2286,
+      "thickness": 0.2286
+     },
+     "material": {
+      "id": "plaster-white",
+      "name": "Plaster · White",
+      "color": "#ece8df",
+      "finish": "matte",
+      "roughness": 0.95,
+      "metalness": 0,
+      "texture": "plaster",
+      "textureScale": 2.5
+     }
+    },
+    {
+     "id": "w-94",
+     "type": "wall",
+     "name": "Wall",
+     "start": {
+      "x": 0,
+      "y": 8.5344
+     },
+     "end": {
+      "x": 0,
+      "y": 0
+     },
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 4.2672,
+       "z": 0
+      },
+      "rotation": -1.5707963267948966,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 8.5344,
+      "height": 3.05,
+      "depth": 0.2286,
+      "thickness": 0.2286
+     },
+     "material": {
+      "id": "plaster-white",
+      "name": "Plaster · White",
+      "color": "#ece8df",
+      "finish": "matte",
+      "roughness": 0.95,
+      "metalness": 0,
+      "texture": "plaster",
+      "textureScale": 2.5
+     }
+    },
+    {
+     "id": "w-95",
+     "type": "wall",
+     "name": "Wall",
+     "start": {
+      "x": 0,
+      "y": 2.4384
+     },
+     "end": {
+      "x": 9.4701,
+      "y": 2.4384
+     },
+     "transform": {
+      "position": {
+       "x": 4.7351,
+       "y": 2.4384,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 9.4701,
+      "height": 3.05,
+      "depth": 0.1143,
+      "thickness": 0.1143
+     },
+     "material": {
+      "id": "plaster-white",
+      "name": "Plaster · White",
+      "color": "#ece8df",
+      "finish": "matte",
+      "roughness": 0.95,
+      "metalness": 0,
+      "texture": "plaster",
+      "textureScale": 2.5
+     }
+    },
+    {
+     "id": "w-96",
+     "type": "wall",
+     "name": "Wall",
+     "start": {
+      "x": 3.8207,
+      "y": 0
+     },
+     "end": {
+      "x": 3.8207,
+      "y": 2.4384
+     },
+     "transform": {
+      "position": {
+       "x": 3.8207,
+       "y": 1.2192,
+       "z": 0
+      },
+      "rotation": 1.5707963267948966,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 2.4384,
+      "height": 3.05,
+      "depth": 0.1143,
+      "thickness": 0.1143
+     },
+     "material": {
+      "id": "plaster-white",
+      "name": "Plaster · White",
+      "color": "#ece8df",
+      "finish": "matte",
+      "roughness": 0.95,
+      "metalness": 0,
+      "texture": "plaster",
+      "textureScale": 2.5
+     }
+    },
+    {
+     "id": "w-97",
+     "type": "wall",
+     "name": "Wall",
+     "start": {
+      "x": 5.6495,
+      "y": 0
+     },
+     "end": {
+      "x": 5.6495,
+      "y": 2.4384
+     },
+     "transform": {
+      "position": {
+       "x": 5.6495,
+       "y": 1.2192,
+       "z": 0
+      },
+      "rotation": 1.5707963267948966,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 2.4384,
+      "height": 3.05,
+      "depth": 0.1143,
+      "thickness": 0.1143
+     },
+     "material": {
+      "id": "plaster-white",
+      "name": "Plaster · White",
+      "color": "#ece8df",
+      "finish": "matte",
+      "roughness": 0.95,
+      "metalness": 0,
+      "texture": "plaster",
+      "textureScale": 2.5
+     }
+    },
+    {
+     "id": "w-98",
+     "type": "wall",
+     "name": "Wall",
+     "start": {
+      "x": 3.8207,
+      "y": 2.4384
+     },
+     "end": {
+      "x": 3.8207,
+      "y": 8.5344
+     },
+     "transform": {
+      "position": {
+       "x": 3.8207,
+       "y": 5.4864,
+       "z": 0
+      },
+      "rotation": 1.5707963267948966,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 6.096,
+      "height": 3.05,
+      "depth": 0.1143,
+      "thickness": 0.1143
+     },
+     "material": {
+      "id": "plaster-white",
+      "name": "Plaster · White",
+      "color": "#ece8df",
+      "finish": "matte",
+      "roughness": 0.95,
+      "metalness": 0,
+      "texture": "plaster",
+      "textureScale": 2.5
+     }
+    },
+    {
+     "id": "w-99",
+     "type": "wall",
+     "name": "Wall",
+     "start": {
+      "x": 5.6495,
+      "y": 2.4384
+     },
+     "end": {
+      "x": 5.6495,
+      "y": 8.5344
+     },
+     "transform": {
+      "position": {
+       "x": 5.6495,
+       "y": 5.4864,
+       "z": 0
+      },
+      "rotation": 1.5707963267948966,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 6.096,
+      "height": 3.05,
+      "depth": 0.1143,
+      "thickness": 0.1143
+     },
+     "material": {
+      "id": "plaster-white",
+      "name": "Plaster · White",
+      "color": "#ece8df",
+      "finish": "matte",
+      "roughness": 0.95,
+      "metalness": 0,
+      "texture": "plaster",
+      "textureScale": 2.5
+     }
+    },
+    {
+     "id": "d-100",
+     "type": "door",
+     "name": "Door",
+     "wallId": "w-93",
+     "offset": 4.7351,
+     "sillHeight": 0,
+     "style": "single",
+     "swing": -1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.0668,
+      "height": 2.1,
+      "depth": 0.2286
+     },
+     "material": {
+      "id": "wood-teak",
+      "name": "Wood · Teak",
+      "color": "#a8754a",
+      "finish": "satin",
+      "roughness": 0.65,
+      "metalness": 0
+     }
+    },
+    {
+     "id": "d-101",
+     "type": "door",
+     "name": "Door",
+     "wallId": "w-98",
+     "offset": 5.1816,
+     "sillHeight": 0,
+     "style": "single",
+     "swing": -1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0.9144,
+      "height": 2.1,
+      "depth": 0.1143
+     },
+     "material": {
+      "id": "wood-teak",
+      "name": "Wood · Teak",
+      "color": "#a8754a",
+      "finish": "satin",
+      "roughness": 0.65,
+      "metalness": 0
+     }
+    },
+    {
+     "id": "d-102",
+     "type": "door",
+     "name": "Door",
+     "wallId": "w-99",
+     "offset": 5.1816,
+     "sillHeight": 0,
+     "style": "single",
+     "swing": 1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0.9144,
+      "height": 2.1,
+      "depth": 0.1143
+     },
+     "material": {
+      "id": "wood-teak",
+      "name": "Wood · Teak",
+      "color": "#a8754a",
+      "finish": "satin",
+      "roughness": 0.65,
+      "metalness": 0
+     }
+    },
+    {
+     "id": "d-103",
+     "type": "door",
+     "name": "Door",
+     "wallId": "w-95",
+     "offset": 3.2918,
+     "sillHeight": 0,
+     "style": "single",
+     "swing": 1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0.762,
+      "height": 2.1,
+      "depth": 0.1143
+     },
+     "material": {
+      "id": "wood-teak",
+      "name": "Wood · Teak",
+      "color": "#a8754a",
+      "finish": "satin",
+      "roughness": 0.65,
+      "metalness": 0
+     }
+    },
+    {
+     "id": "d-104",
+     "type": "door",
+     "name": "Door",
+     "wallId": "w-95",
+     "offset": 6.1874,
+     "sillHeight": 0,
+     "style": "single",
+     "swing": -1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0.762,
+      "height": 2.1,
+      "depth": 0.1143
+     },
+     "material": {
+      "id": "wood-teak",
+      "name": "Wood · Teak",
+      "color": "#a8754a",
+      "finish": "satin",
+      "roughness": 0.65,
+      "metalness": 0
+     }
+    },
+    {
+     "id": "d-105",
+     "type": "door",
+     "name": "Door",
+     "wallId": "w-95",
+     "offset": 4.7351,
+     "sillHeight": 0,
+     "style": "single",
+     "swing": 1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0.762,
+      "height": 2.1,
+      "depth": 0.1143
+     },
+     "material": {
+      "id": "wood-teak",
+      "name": "Wood · Teak",
+      "color": "#a8754a",
+      "finish": "satin",
+      "roughness": 0.65,
+      "metalness": 0
+     }
+    },
+    {
+     "id": "n-106",
+     "type": "window",
+     "name": "Window",
+     "wallId": "w-91",
+     "offset": 1.8288,
+     "sillHeight": 0.9,
+     "style": "fixed",
+     "mullions": 1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.2192,
+      "height": 1.35,
+      "depth": 0.2286
+     },
+     "material": {
+      "id": "glass",
+      "name": "Glass",
+      "color": "#aac9dd",
+      "finish": "glossy",
+      "roughness": 0.08,
+      "metalness": 0.1
+     }
+    },
+    {
+     "id": "n-107",
+     "type": "window",
+     "name": "Window",
+     "wallId": "w-91",
+     "offset": 7.62,
+     "sillHeight": 0.9,
+     "style": "fixed",
+     "mullions": 1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.2192,
+      "height": 1.35,
+      "depth": 0.2286
+     },
+     "material": {
+      "id": "glass",
+      "name": "Glass",
+      "color": "#aac9dd",
+      "finish": "glossy",
+      "roughness": 0.08,
+      "metalness": 0.1
+     }
+    },
+    {
+     "id": "n-108",
+     "type": "window",
+     "name": "Window",
+     "wallId": "w-92",
+     "offset": 4.2672,
+     "sillHeight": 0.9,
+     "style": "fixed",
+     "mullions": 1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.2192,
+      "height": 1.35,
+      "depth": 0.2286
+     },
+     "material": {
+      "id": "glass",
+      "name": "Glass",
+      "color": "#aac9dd",
+      "finish": "glossy",
+      "roughness": 0.08,
+      "metalness": 0.1
+     }
+    },
+    {
+     "id": "n-109",
+     "type": "window",
+     "name": "Window",
+     "wallId": "w-92",
+     "offset": 6.7056,
+     "sillHeight": 0.9,
+     "style": "fixed",
+     "mullions": 1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.2192,
+      "height": 1.35,
+      "depth": 0.2286
+     },
+     "material": {
+      "id": "glass",
+      "name": "Glass",
+      "color": "#aac9dd",
+      "finish": "glossy",
+      "roughness": 0.08,
+      "metalness": 0.1
+     }
+    },
+    {
+     "id": "n-110",
+     "type": "window",
+     "name": "Window",
+     "wallId": "w-94",
+     "offset": 4.2672,
+     "sillHeight": 0.9,
+     "style": "fixed",
+     "mullions": 1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.2192,
+      "height": 1.35,
+      "depth": 0.2286
+     },
+     "material": {
+      "id": "glass",
+      "name": "Glass",
+      "color": "#aac9dd",
+      "finish": "glossy",
+      "roughness": 0.08,
+      "metalness": 0.1
+     }
+    },
+    {
+     "id": "n-111",
+     "type": "window",
+     "name": "Window",
+     "wallId": "w-94",
+     "offset": 1.8288,
+     "sillHeight": 0.9,
+     "style": "fixed",
+     "mullions": 1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.2192,
+      "height": 1.35,
+      "depth": 0.2286
+     },
+     "material": {
+      "id": "glass",
+      "name": "Glass",
+      "color": "#aac9dd",
+      "finish": "glossy",
+      "roughness": 0.08,
+      "metalness": 0.1
+     }
+    },
+    {
+     "id": "n-112",
+     "type": "window",
+     "name": "Window",
+     "wallId": "w-93",
+     "offset": 7.6413,
+     "sillHeight": 0.9,
+     "style": "fixed",
+     "mullions": 2,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.2192,
+      "height": 1.35,
+      "depth": 0.2286
+     },
+     "material": {
+      "id": "glass",
+      "name": "Glass",
+      "color": "#aac9dd",
+      "finish": "glossy",
+      "roughness": 0.08,
+      "metalness": 0.1
+     }
+    },
+    {
+     "id": "n-113",
+     "type": "window",
+     "name": "Window",
+     "wallId": "w-93",
+     "offset": 1.8501,
+     "sillHeight": 0.9,
+     "style": "fixed",
+     "mullions": 2,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.2192,
+      "height": 1.35,
+      "depth": 0.2286
+     },
+     "material": {
+      "id": "glass",
+      "name": "Glass",
+      "color": "#aac9dd",
+      "finish": "glossy",
+      "roughness": 0.08,
+      "metalness": 0.1
+     }
+    },
+    {
+     "id": "f-121",
+     "type": "furniture",
+     "name": "Queen Bed",
+     "catalogId": "bed-queen",
+     "transform": {
+      "position": {
+       "x": 1.905,
+       "y": 3.7186,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.5,
+      "height": 1.15,
+      "depth": 2.05
+     },
+     "material": {
+      "id": "fabric-linen",
+      "name": "Queen Bed",
+      "color": "#cfc4ae",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "f-122",
+     "type": "furniture",
+     "name": "Queen Bed",
+     "catalogId": "bed-queen",
+     "transform": {
+      "position": {
+       "x": 7.559,
+       "y": 3.7186,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.5,
+      "height": 1.15,
+      "depth": 2.05
+     },
+     "material": {
+      "id": "fabric-linen",
+      "name": "Queen Bed",
+      "color": "#cfc4ae",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "f-123",
+     "type": "furniture",
+     "name": "Wardrobe · 3 Door",
+     "catalogId": "wardrobe-3",
+     "transform": {
+      "position": {
+       "x": 1.6764,
+       "y": 8.1077,
+       "z": 0
+      },
+      "rotation": 3.141592653589793,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.8,
+      "height": 2.2,
+      "depth": 0.6
+     },
+     "material": {
+      "id": "wood-walnut",
+      "name": "Wardrobe · 3 Door",
+      "color": "#6b4d33",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "f-124",
+     "type": "furniture",
+     "name": "Wardrobe · 3 Door",
+     "catalogId": "wardrobe-3",
+     "transform": {
+      "position": {
+       "x": 7.7724,
+       "y": 8.1077,
+       "z": 0
+      },
+      "rotation": 3.141592653589793,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.8,
+      "height": 2.2,
+      "depth": 0.6
+     },
+     "material": {
+      "id": "wood-walnut",
+      "name": "Wardrobe · 3 Door",
+      "color": "#6b4d33",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "f-125",
+     "type": "furniture",
+     "name": "Toilet (WC)",
+     "catalogId": "toilet",
+     "transform": {
+      "position": {
+       "x": 0.6096,
+       "y": 0.5791,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0.4,
+      "height": 0.75,
+      "depth": 0.7
+     },
+     "material": {
+      "id": "tile-ivory",
+      "name": "Toilet (WC)",
+      "color": "#e8e4da",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "f-126",
+     "type": "furniture",
+     "name": "Washbasin",
+     "catalogId": "washbasin",
+     "transform": {
+      "position": {
+       "x": 1.6459,
+       "y": 0.4267,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0.55,
+      "height": 0.85,
+      "depth": 0.45
+     },
+     "material": {
+      "id": "tile-ivory",
+      "name": "Washbasin",
+      "color": "#e8e4da",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "f-127",
+     "type": "furniture",
+     "name": "Shower",
+     "catalogId": "shower",
+     "transform": {
+      "position": {
+       "x": 3.2309,
+       "y": 0.6706,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0.9,
+      "height": 2.1,
+      "depth": 0.9
+     },
+     "material": {
+      "id": "glass",
+      "name": "Shower",
+      "color": "#aac9dd",
+      "finish": "glossy",
+      "roughness": 0.1,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "f-128",
+     "type": "furniture",
+     "name": "Toilet (WC)",
+     "catalogId": "toilet",
+     "transform": {
+      "position": {
+       "x": 8.8392,
+       "y": 0.5791,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0.4,
+      "height": 0.75,
+      "depth": 0.7
+     },
+     "material": {
+      "id": "tile-ivory",
+      "name": "Toilet (WC)",
+      "color": "#e8e4da",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "f-129",
+     "type": "furniture",
+     "name": "Washbasin",
+     "catalogId": "washbasin",
+     "transform": {
+      "position": {
+       "x": 7.8029,
+       "y": 0.4267,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0.55,
+      "height": 0.85,
+      "depth": 0.45
+     },
+     "material": {
+      "id": "tile-ivory",
+      "name": "Washbasin",
+      "color": "#e8e4da",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "f-130",
+     "type": "furniture",
+     "name": "Shower",
+     "catalogId": "shower",
+     "transform": {
+      "position": {
+       "x": 6.2179,
+       "y": 0.6706,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 0.9,
+      "height": 2.1,
+      "depth": 0.9
+     },
+     "material": {
+      "id": "glass",
+      "name": "Shower",
+      "color": "#aac9dd",
+      "finish": "glossy",
+      "roughness": 0.1,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "f-131",
+     "type": "furniture",
+     "name": "Planter · Long",
+     "catalogId": "planter-long",
+     "transform": {
+      "position": {
+       "x": 0.9754,
+       "y": 9.144,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.8,
+      "height": 0.45,
+      "depth": 0.45
+     },
+     "material": {
+      "id": "concrete",
+      "name": "Planter · Long",
+      "color": "#b9b6ae",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "f-132",
+     "type": "furniture",
+     "name": "Planter · Long",
+     "catalogId": "planter-long",
+     "transform": {
+      "position": {
+       "x": 8.5039,
+       "y": 9.144,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.8,
+      "height": 0.45,
+      "depth": 0.45
+     },
+     "material": {
+      "id": "concrete",
+      "name": "Planter · Long",
+      "color": "#b9b6ae",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "f-133",
+     "type": "furniture",
+     "name": "Wood Slat Screen",
+     "catalogId": "slat-screen",
+     "transform": {
+      "position": {
+       "x": 9.2659,
+       "y": 10.0584,
+       "z": 0
+      },
+      "rotation": 1.5707963267948966,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 2.4,
+      "height": 2.7,
+      "depth": 0.12
+     },
+     "material": {
+      "id": "wood-teak",
+      "name": "Wood Slat Screen",
+      "color": "#a8754a",
+      "finish": "matte",
+      "roughness": 0.9,
+      "metalness": 0
+     },
+     "meta": {}
+    },
+    {
+     "id": "rf-90",
+     "type": "roof",
+     "name": "Roof Slab",
+     "roofStyle": "flat",
+     "pitch": 0,
+     "overhang": 0.1,
+     "parapetHeight": 0.9,
+     "skylights": [],
+     "dormers": [],
+     "transform": {
+      "position": {
+       "x": 4.7351,
+       "y": 4.2672,
+       "z": 3.05
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 9.6201,
+      "height": 0,
+      "depth": 8.6844,
+      "thickness": 0.15
+     },
+     "material": {
+      "id": "fascia-dark",
+      "name": "Fascia · Matte Dark",
+      "color": "#26282c",
+      "finish": "matte",
+      "roughness": 0.85,
       "metalness": 0
      }
     }

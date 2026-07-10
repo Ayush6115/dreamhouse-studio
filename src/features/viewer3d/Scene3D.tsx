@@ -1,7 +1,7 @@
-import { Suspense, useEffect, useMemo } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { Canvas, useThree } from '@react-three/fiber';
-import { Environment, OrbitControls, SoftShadows, useTexture } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Environment, OrbitControls, PointerLockControls, SoftShadows, useTexture } from '@react-three/drei';
 import { EffectComposer, N8AO, SMAA } from '@react-three/postprocessing';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { useUiStore } from '../../store/uiStore';
@@ -10,7 +10,7 @@ import { isOpening, isRoom, isWall } from '../../types';
 import { useDesignStore } from '../../store/designStore';
 import { ensureClockwise, polygonCentroid } from '../../geometry/polygon';
 import { add, norm, scale as vscale, sub } from '../../geometry/vec';
-import { wallThickness } from '../../geometry/walls';
+import { wallThickness, wallsUnionOutlines } from '../../geometry/walls';
 import { catalogItemById } from '../../library/catalog';
 import { materialById } from '../../library/materials';
 import { trimPiecesToRoofs, wallPieces } from './geometry3d';
@@ -134,14 +134,52 @@ function Wall3D({
   );
 }
 
+const FRAME_DARK = '#3c3e42'; // powder-coated window sections
+const CONCRETE_TRIM = '#cfccc3'; // chajjas, sills, copings
+
+/** Shade slab (chajja) + sill projecting on the exterior face of an opening. */
+function ShadeAndSill({
+  w,
+  topY,
+  sillY,
+  th,
+  outward,
+  withSill,
+}: {
+  w: number;
+  topY: number;
+  sillY: number;
+  th: number;
+  outward: 1 | -1;
+  withSill: boolean;
+}) {
+  const depth = 0.42;
+  return (
+    <>
+      <mesh position={[0, topY + 0.05, outward * (th / 2 + depth / 2 - 0.06)]} castShadow receiveShadow>
+        <boxGeometry args={[w + 0.32, 0.08, depth]} />
+        <meshStandardMaterial color={CONCRETE_TRIM} roughness={0.92} />
+      </mesh>
+      {withSill && (
+        <mesh position={[0, sillY - 0.03, outward * (th / 2 + 0.05)]} castShadow receiveShadow>
+          <boxGeometry args={[w + 0.14, 0.06, 0.18]} />
+          <meshStandardMaterial color={CONCRETE_TRIM} roughness={0.92} />
+        </mesh>
+      )}
+    </>
+  );
+}
+
 function Opening3D({
   opening,
   host,
   baseY,
+  outward = 1,
 }: {
   opening: OpeningElement;
   host: WallElement;
   baseY: number;
+  outward?: 1 | -1;
 }) {
   const setSelection = useDesignStore((s) => s.setSelection);
   const selected = useDesignStore((s) => s.selectedIds.includes(opening.id));
@@ -151,6 +189,38 @@ function Opening3D({
   const w = opening.dimensions.width;
   const h = opening.dimensions.height;
   const th = wallThickness(host);
+  const leafDark = useMemo(
+    () => `#${new THREE.Color(opening.material.color).multiplyScalar(0.72).getHexString()}`,
+    [opening.material.color],
+  );
+
+  /** Paneled leaf with handle — the flat slab read as a toy before. */
+  const leaf = (lw: number, x: number, z: number, handleSide: 1 | -1) => (
+    <group position={[x, 0, z]}>
+      <mesh position={[0, h / 2, 0]} castShadow>
+        <boxGeometry args={[lw, h * 0.99, 0.05]} />
+        <ElementMaterial material={opening.material} selected={selected} />
+      </mesh>
+      {/* recessed panels on both faces */}
+      {([-1, 1] as const).map((face) => (
+        <group key={face}>
+          <mesh position={[0, h * 0.68, face * 0.027]}>
+            <boxGeometry args={[lw * 0.68, h * 0.42, 0.006]} />
+            <meshStandardMaterial color={leafDark} roughness={0.7} />
+          </mesh>
+          <mesh position={[0, h * 0.25, face * 0.027]}>
+            <boxGeometry args={[lw * 0.68, h * 0.32, 0.006]} />
+            <meshStandardMaterial color={leafDark} roughness={0.7} />
+          </mesh>
+        </group>
+      ))}
+      {/* handle */}
+      <mesh position={[handleSide * (lw / 2 - 0.09), h * 0.48, 0.045]} castShadow>
+        <cylinderGeometry args={[0.014, 0.014, 0.13, 10]} />
+        <meshStandardMaterial color="#8f959b" roughness={0.3} metalness={0.9} />
+      </mesh>
+    </group>
+  );
 
   return (
     <group
@@ -162,62 +232,91 @@ function Opening3D({
       }}
     >
       {opening.type === 'door' ? (
-        opening.style === 'double' ? (
-          <>
-            {([-1, 1] as const).map((side) => (
-              <mesh key={side} position={[side * (w * 0.235 + 0.005), h / 2, 0]} castShadow>
-                <boxGeometry args={[w * 0.46, h * 0.99, 0.05]} />
-                <ElementMaterial material={opening.material} selected={selected} />
-              </mesh>
-            ))}
-          </>
-        ) : opening.style === 'sliding' ? (
-          <>
-            <mesh position={[-w * 0.24, h / 2, 0.03]} castShadow>
-              <boxGeometry args={[w * 0.52, h * 0.99, 0.04]} />
-              <ElementMaterial material={opening.material} selected={selected} />
+        <>
+          {/* architrave frame */}
+          {(
+            [
+              [-w / 2 - 0.035, h / 2, 0.07, h],
+              [w / 2 + 0.035, h / 2, 0.07, h],
+              [0, h + 0.035, w + 0.14, 0.07],
+            ] as const
+          ).map(([x, y, bw, bh], i) => (
+            <mesh key={i} position={[x, y, 0]} castShadow>
+              <boxGeometry args={[bw, bh, th + 0.03]} />
+              <meshStandardMaterial color={leafDark} roughness={0.65} />
             </mesh>
-            <mesh position={[w * 0.24, h / 2, -0.03]} castShadow>
-              <boxGeometry args={[w * 0.52, h * 0.99, 0.04]} />
-              <ElementMaterial material={opening.material} selected={selected} />
-            </mesh>
-          </>
-        ) : (
-          <mesh position={[0, h / 2, 0]} castShadow>
-            <boxGeometry args={[w * 0.94, h * 0.99, 0.05]} />
-            <ElementMaterial material={opening.material} selected={selected} />
+          ))}
+          {opening.style === 'double' ? (
+            <>
+              {leaf(w * 0.46, -(w * 0.235 + 0.005), 0, 1)}
+              {leaf(w * 0.46, w * 0.235 + 0.005, 0, -1)}
+            </>
+          ) : opening.style === 'sliding' ? (
+            <>
+              {/* glazed sliding panels */}
+              {([-1, 1] as const).map((side) => (
+                <group key={side} position={[side * w * 0.24, 0, side * 0.03]}>
+                  <mesh position={[0, h / 2, 0]}>
+                    <boxGeometry args={[w * 0.5, h * 0.97, 0.045]} />
+                    <meshStandardMaterial color={FRAME_DARK} roughness={0.45} metalness={0.4} />
+                  </mesh>
+                  <mesh position={[0, h / 2, 0]}>
+                    <boxGeometry args={[w * 0.44, h * 0.86, 0.055]} />
+                    <meshPhysicalMaterial
+                      color="#b9d4e4"
+                      roughness={0.05}
+                      metalness={0}
+                      transparent
+                      opacity={0.32}
+                      clearcoat={1}
+                      envMapIntensity={1.3}
+                    />
+                  </mesh>
+                </group>
+              ))}
+            </>
+          ) : (
+            leaf(w * 0.94, 0, 0, 1)
+          )}
+          {/* threshold + shade over external doors */}
+          <mesh position={[0, 0.012, 0]} receiveShadow>
+            <boxGeometry args={[w + 0.1, 0.024, th + 0.1]} />
+            <meshStandardMaterial color={CONCRETE_TRIM} roughness={0.95} />
           </mesh>
-        )
+          <ShadeAndSill w={w} topY={h + 0.07} sillY={0} th={th} outward={outward} withSill={false} />
+        </>
       ) : (
         <>
-          {/* glass */}
+          {/* glass — physically-based so the sky/env reflects in it */}
           <mesh position={[0, opening.sillHeight + h / 2, 0]}>
             <boxGeometry args={[w * 0.96, h * 0.96, 0.02]} />
-            <meshStandardMaterial
+            <meshPhysicalMaterial
               color={opening.material.color}
-              roughness={0.08}
-              metalness={0.1}
+              roughness={0.04}
+              metalness={0}
               transparent
               opacity={0.3}
+              clearcoat={1}
+              envMapIntensity={1.4}
               emissive={selected ? '#2f6fee' : '#000'}
               emissiveIntensity={selected ? 0.3 : 0}
             />
           </mesh>
-          {/* frame */}
+          {/* outer frame */}
           {(
             [
-              [0, opening.sillHeight + 0.02, w, 0.04],
-              [0, opening.sillHeight + h - 0.02, w, 0.04],
-              [-w / 2 + 0.02, opening.sillHeight + h / 2, 0.04, h],
-              [w / 2 - 0.02, opening.sillHeight + h / 2, 0.04, h],
+              [0, opening.sillHeight + 0.025, w, 0.05],
+              [0, opening.sillHeight + h - 0.025, w, 0.05],
+              [-w / 2 + 0.025, opening.sillHeight + h / 2, 0.05, h],
+              [w / 2 - 0.025, opening.sillHeight + h / 2, 0.05, h],
             ] as const
           ).map(([x, y, bw, bh], i) => (
             <mesh key={i} position={[x, y, 0]} castShadow>
-              <boxGeometry args={[bw, bh, Math.min(th * 0.6, 0.08)]} />
-              <meshStandardMaterial color="#5c5650" roughness={0.5} />
+              <boxGeometry args={[bw, bh, Math.min(th * 0.7, 0.1)]} />
+              <meshStandardMaterial color={FRAME_DARK} roughness={0.45} metalness={0.4} />
             </mesh>
           ))}
-          {/* mullions */}
+          {/* mullions + center transom */}
           {Array.from(
             { length: opening.mullions ?? (opening.style === 'sliding' || opening.style === 'casement' ? 1 : 0) },
             (_, i) => {
@@ -225,12 +324,24 @@ function Opening3D({
               const x = -w / 2 + ((i + 1) * w) / count;
               return (
                 <mesh key={`m${i}`} position={[x, opening.sillHeight + h / 2, 0]}>
-                  <boxGeometry args={[0.035, h - 0.04, Math.min(th * 0.5, 0.06)]} />
-                  <meshStandardMaterial color="#5c5650" roughness={0.5} />
+                  <boxGeometry args={[0.04, h - 0.05, Math.min(th * 0.5, 0.07)]} />
+                  <meshStandardMaterial color={FRAME_DARK} roughness={0.45} metalness={0.4} />
                 </mesh>
               );
             },
           )}
+          <mesh position={[0, opening.sillHeight + h / 2, 0]}>
+            <boxGeometry args={[w - 0.05, 0.035, Math.min(th * 0.45, 0.06)]} />
+            <meshStandardMaterial color={FRAME_DARK} roughness={0.45} metalness={0.4} />
+          </mesh>
+          <ShadeAndSill
+            w={w}
+            topY={opening.sillHeight + h}
+            sillY={opening.sillHeight}
+            th={th}
+            outward={outward}
+            withSill
+          />
         </>
       )}
     </group>
@@ -411,7 +522,79 @@ function Items3D({ level, lampsOn }: { level: Level; lampsOn: boolean }) {
   );
 }
 
-function Level3D({ level, lampsOn }: { level: Level; lampsOn: boolean }) {
+/** Inflate a polygon slightly about its centroid (for trim bands). */
+function inflatePoly(poly: Point[], factor: number): Point[] {
+  const c = polygonCentroid(poly);
+  return poly.map((p) => ({ x: c.x + (p.x - c.x) * factor, y: c.y + (p.y - c.y) * factor }));
+}
+
+const PLINTH_MAT = { color: '#8f8b82', roughness: 0.95 };
+const FASCIA_MAT = { color: '#d6d2c8', roughness: 0.9 };
+
+/**
+ * Construction trims that break up the plain extruded box: a plinth course
+ * at grade and a floor-slab fascia band at the level top when another storey
+ * sits above.
+ */
+function LevelTrims({
+  walls,
+  baseY,
+  height,
+  hasLevelAbove,
+}: {
+  walls: WallElement[];
+  baseY: number;
+  height: number;
+  hasLevelAbove: boolean;
+}) {
+  const rings = useMemo(() => wallsUnionOutlines(walls.filter((w) => w.visible !== false)), [walls]);
+  const geos = useMemo(() => {
+    const make = (factor: number, z0: number, z1: number) => {
+      const parts = rings
+        .filter((r) => r.length >= 3)
+        .map((r) => {
+          const pts = ensureClockwise(inflatePoly(r, factor));
+          const shape = new THREE.Shape(pts.map((p) => new THREE.Vector2(p.x, p.y)));
+          const geo = new THREE.ExtrudeGeometry(shape, { depth: z1 - z0, bevelEnabled: false });
+          geo.rotateX(Math.PI / 2);
+          geo.translate(0, z1, 0);
+          return geo;
+        });
+      if (parts.length === 0) return null;
+      const merged = mergeGeometries(parts, false);
+      parts.forEach((g) => g.dispose());
+      return merged;
+    };
+    return {
+      plinth: baseY < 0.01 ? make(1.02, -0.03, 0.16) : null,
+      fascia: hasLevelAbove ? make(1.012, height - 0.16, height + 0.02) : null,
+    };
+  }, [rings, baseY, height, hasLevelAbove]);
+  useEffect(
+    () => () => {
+      geos.plinth?.dispose();
+      geos.fascia?.dispose();
+    },
+    [geos],
+  );
+
+  return (
+    <>
+      {geos.plinth && (
+        <mesh geometry={geos.plinth} position={[0, baseY, 0]} castShadow receiveShadow>
+          <meshStandardMaterial {...PLINTH_MAT} />
+        </mesh>
+      )}
+      {geos.fascia && (
+        <mesh geometry={geos.fascia} position={[0, baseY, 0]} castShadow receiveShadow>
+          <meshStandardMaterial {...FASCIA_MAT} />
+        </mesh>
+      )}
+    </>
+  );
+}
+
+function Level3D({ level, lampsOn, hasLevelAbove }: { level: Level; lampsOn: boolean; hasLevelAbove: boolean }) {
   const walls = useMemo(() => level.elements.filter(isWall), [level.elements]);
   const openings = useMemo(() => level.elements.filter(isOpening), [level.elements]);
   const rooms = useMemo(() => level.elements.filter(isRoom), [level.elements]);
@@ -420,6 +603,13 @@ function Level3D({ level, lampsOn }: { level: Level; lampsOn: boolean }) {
     [level.elements],
   );
   const baseY = level.elevation;
+  const centroid = useMemo(
+    () =>
+      walls.length > 0
+        ? polygonCentroid(walls.flatMap((w) => [w.start, w.end]))
+        : { x: 0, y: 0 },
+    [walls],
+  );
 
   return (
     <group>
@@ -431,11 +621,16 @@ function Level3D({ level, lampsOn }: { level: Level; lampsOn: boolean }) {
           <Wall3D key={w.id} wall={w} walls={walls} openings={openings} roofs={roofs} baseY={baseY} />
         ),
       )}
+      <LevelTrims walls={walls} baseY={baseY} height={level.height ?? 3} hasLevelAbove={hasLevelAbove} />
       {openings.map((o) => {
         const host = walls.find((w) => w.id === o.wallId);
-        return host && o.visible !== false ? (
-          <Opening3D key={o.id} opening={o} host={host} baseY={baseY} />
-        ) : null;
+        if (!host || o.visible === false) return null;
+        const dir = norm(sub(host.end, host.start));
+        const center = add(host.start, vscale(dir, o.offset));
+        const perp = { x: -dir.y, y: dir.x };
+        const outward: 1 | -1 =
+          perp.x * (center.x - centroid.x) + perp.y * (center.y - centroid.y) >= 0 ? 1 : -1;
+        return <Opening3D key={o.id} opening={o} host={host} baseY={baseY} outward={outward} />;
       })}
       <Items3D level={level} lampsOn={lampsOn} />
     </group>
@@ -538,6 +733,66 @@ function sunPosition(hour: number, northAngleDeg: number, distance = 55): [numbe
   ];
 }
 
+/**
+ * First-person walkthrough: pointer-lock look + WASD movement at eye height.
+ * R/F change height (stairs have no collision solver — you fly between
+ * floors), Shift runs, Esc releases the mouse.
+ */
+function WalkControls({ start, target }: { start: Point; target: Point }) {
+  const camera = useThree((s) => s.camera);
+  const gl = useThree((s) => s.gl);
+  const setEvents = useThree((s) => s.setEvents);
+  const keys = useRef<Record<string, boolean>>({});
+  const startRef = useRef({ start, target });
+
+  useEffect(() => {
+    const cam = camera as THREE.PerspectiveCamera;
+    const prevFov = cam.fov;
+    cam.fov = 68;
+    const { start: s, target: t } = startRef.current;
+    cam.position.set(s.x, 1.62, s.y);
+    cam.lookAt(t.x, 1.45, t.y);
+    cam.updateProjectionMatrix();
+    // The lock-click must not raycast-select elements while touring.
+    setEvents({ enabled: false });
+    const down = (e: KeyboardEvent) => {
+      keys.current[e.code] = true;
+    };
+    const up = (e: KeyboardEvent) => {
+      keys.current[e.code] = false;
+    };
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    return () => {
+      cam.fov = prevFov;
+      cam.updateProjectionMatrix();
+      setEvents({ enabled: true });
+      window.removeEventListener('keydown', down);
+      window.removeEventListener('keyup', up);
+    };
+  }, [camera, setEvents]);
+
+  const fwd = useMemo(() => new THREE.Vector3(), []);
+  const rightV = useMemo(() => new THREE.Vector3(), []);
+  useFrame((_, dt) => {
+    const k = keys.current;
+    const step = (k.ShiftLeft || k.ShiftRight ? 4.6 : 2.1) * Math.min(dt, 0.05);
+    camera.getWorldDirection(fwd);
+    fwd.y = 0;
+    if (fwd.lengthSq() > 1e-6) fwd.normalize();
+    rightV.set(-fwd.z, 0, fwd.x);
+    if (k.KeyW || k.ArrowUp) camera.position.addScaledVector(fwd, step);
+    if (k.KeyS || k.ArrowDown) camera.position.addScaledVector(fwd, -step);
+    if (k.KeyA || k.ArrowLeft) camera.position.addScaledVector(rightV, -step);
+    if (k.KeyD || k.ArrowRight) camera.position.addScaledVector(rightV, step);
+    if (k.KeyR || k.KeyE) camera.position.y += step;
+    if (k.KeyF || k.KeyQ) camera.position.y -= step;
+    camera.position.y = Math.min(30, Math.max(0.55, camera.position.y));
+  });
+
+  return <PointerLockControls makeDefault domElement={gl.domElement} />;
+}
+
 export function Scene3D() {
   const doc = useDesignStore((s) => s.doc);
   const dayNight = useDesignStore((s) => s.dayNight);
@@ -547,6 +802,8 @@ export function Scene3D() {
   const skyColor = night ? '#0a0f1c' : evening ? '#35425f' : '#bfd9ec';
   const sunHour = useDesignStore((s) => s.sunHour);
   const highQuality = useUiStore((s) => s.renderQuality === 'high');
+  const navMode = useUiStore((s) => s.navMode);
+  const setNavMode = useUiStore((s) => s.setNavMode);
 
   // Cache a snapshot when the 3D view unmounts, so exports from other views
   // can still include a render.
@@ -572,9 +829,35 @@ export function Scene3D() {
     return { x: 6, y: 6 };
   }, [doc]);
 
+  // Walkthrough spawn: a few meters in front of the building, facing it.
+  const walkSpawn = useMemo(() => {
+    const walls = doc.levels[0]?.elements.filter(isWall) ?? [];
+    if (walls.length === 0) return { start: { x: center.x, y: center.y + 7 }, target: center };
+    const c = polygonCentroid(walls.flatMap((w) => [w.start, w.end]));
+    const maxY = Math.max(...walls.flatMap((w) => [w.start.y, w.end.y]));
+    return { start: { x: c.x, y: maxY + 4.5 }, target: c };
+  }, [doc, center]);
+
   return (
     <div className="relative h-full w-full" style={{ background: skyColor }}>
-      <PhotorealRender />
+      {navMode !== 'walk' && <PhotorealRender />}
+      {navMode === 'walk' && (
+        <div className="pointer-events-none absolute left-1/2 top-3 z-10 -translate-x-1/2">
+          <div className="pointer-events-auto flex items-center gap-3 rounded-lg border border-edge bg-surface-2/90 px-3 py-2 shadow-lg backdrop-blur">
+            <span className="text-[11px] leading-snug text-ink-dim">
+              <b className="text-ink">Walkthrough</b> — click the view to capture the mouse ·{' '}
+              <b className="text-ink">WASD</b> move · <b className="text-ink">Shift</b> run ·{' '}
+              <b className="text-ink">R/F</b> up &amp; down · <b className="text-ink">Esc</b> releases
+            </span>
+            <button
+              onClick={() => setNavMode('orbit')}
+              className="h-7 shrink-0 rounded-md border border-edge px-2.5 text-xs font-medium text-ink hover:bg-surface-3"
+            >
+              Exit
+            </button>
+          </div>
+        </div>
+      )}
       <Canvas
         shadows
         camera={{ position: [center.x + 14, 12, center.y + 14], fov: 50 }}
@@ -637,18 +920,27 @@ export function Scene3D() {
 
         <Ground night={night} plot={doc.plot.boundary} />
         {doc.levels.map((level) => (
-          <Level3D key={level.id} level={level} lampsOn={lampsOn} />
+          <Level3D
+            key={level.id}
+            level={level}
+            lampsOn={lampsOn}
+            hasLevelAbove={doc.levels.some((o) => o.elevation > level.elevation + 0.1)}
+          />
         ))}
 
-        <OrbitControls
-          makeDefault
-          target={[center.x, 1.2, center.y]}
-          maxPolarAngle={Math.PI / 2 - 0.02}
-          minDistance={2}
-          maxDistance={120}
-          enableDamping
-          dampingFactor={0.08}
-        />
+        {navMode === 'walk' ? (
+          <WalkControls start={walkSpawn.start} target={walkSpawn.target} />
+        ) : (
+          <OrbitControls
+            makeDefault
+            target={[center.x, 1.2, center.y]}
+            maxPolarAngle={Math.PI / 2 - 0.02}
+            minDistance={2}
+            maxDistance={120}
+            enableDamping
+            dampingFactor={0.08}
+          />
+        )}
 
         {/* screen-space ambient occlusion + anti-aliasing (Quality: High) */}
         {highQuality && (

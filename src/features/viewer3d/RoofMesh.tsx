@@ -128,7 +128,7 @@ export function RoofMesh({ roof, baseY }: { roof: RoofElement; baseY: number }) 
         <ElementMaterial material={roof.material} selected={selected} side={THREE.DoubleSide} />
       </mesh>
 
-      {/* parapet for flat roofs */}
+      {/* parapet for flat roofs, finished with a projecting coping course */}
       {roof.roofStyle === 'flat' && roof.parapetHeight > 0.01 && (
         <group position={[0, th, 0]}>
           {(
@@ -142,6 +142,19 @@ export function RoofMesh({ roof, baseY }: { roof: RoofElement; baseY: number }) 
             <mesh key={i} position={[x, roof.parapetHeight / 2, z]} castShadow receiveShadow>
               <boxGeometry args={[sx, roof.parapetHeight, sz]} />
               <ElementMaterial material={roof.material} selected={selected} />
+            </mesh>
+          ))}
+          {(
+            [
+              [0, -D / 2 + 0.075, W + 0.06, 0.23],
+              [0, D / 2 - 0.075, W + 0.06, 0.23],
+              [-W / 2 + 0.075, 0, 0.23, D - 0.3],
+              [W / 2 - 0.075, 0, 0.23, D - 0.3],
+            ] as const
+          ).map(([x, z, sx, sz], i) => (
+            <mesh key={`c${i}`} position={[x, roof.parapetHeight + 0.025, z]} castShadow receiveShadow>
+              <boxGeometry args={[sx, 0.05, sz]} />
+              <meshStandardMaterial color="#c9c4b9" roughness={0.85} />
             </mesh>
           ))}
         </group>

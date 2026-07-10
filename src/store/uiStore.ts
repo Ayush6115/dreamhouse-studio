@@ -38,6 +38,9 @@ interface UiState {
   /** 3D render quality: 'high' = AO + SMAA post-processing, 'fast' = raw. */
   renderQuality: 'high' | 'fast';
   setRenderQuality: (q: 'high' | 'fast') => void;
+  /** 3D navigation: orbit camera or first-person walkthrough. */
+  navMode: 'orbit' | 'walk';
+  setNavMode: (m: 'orbit' | 'walk') => void;
   /** Multi-selected plot vertex indices (plot edit mode). */
   selectedPlotVertices: number[];
   setSelectedPlotVertices: (v: number[]) => void;
@@ -73,6 +76,8 @@ export const useUiStore = create<UiState>()((set, get) => ({
   recents: loadList(RECENT_KEY),
   renderQuality: 'high',
   setRenderQuality: (renderQuality) => set({ renderQuality }),
+  navMode: 'orbit',
+  setNavMode: (navMode) => set({ navMode }),
   selectedPlotVertices: [],
   setSelectedPlotVertices: (selectedPlotVertices) => set({ selectedPlotVertices }),
   mobilePanelOpen: false,

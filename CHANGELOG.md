@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- Construction-grade working drawings: a pen-weight hierarchy, grey wall poché with black column markers, dimension chains with extension lines and slash ticks, sanitary/kitchen fixture linework, tile hatching in wet areas, a car symbol in parking bays, numbered stair runs with break lines, property-line linetypes, a graphic scale bar, and enclosed-area statements that exclude open areas (`features/export/workingDrawing.ts`).
+- Model-projected working elevations: stacked floor outlines, parapet or pitched-roof silhouettes, openings with frames, sills and chajjas, a ground line with earth hatch, GL/FFL/ROOF/PARAPET level datums, and width/height dimension chains — generated from the plan model, with the composed facade as fallback.
+- First-person walkthrough in the 3D view: pointer-lock look with WASD movement at eye height, run, and rise/descend keys; element picking and editor hotkeys pause while touring.
+- 3D construction detail: chajjas and sills over openings, architrave door frames with paneled leaves and handles, physically-based reflective glazing, plinth courses, floor-slab fascia bands, and parapet coping.
+- Two-storey Urban Residence example with an open terrace, matching its 16-riser staircase.
 - Working-drawing export style: monochrome plan sheets with hierarchical dimension chains (opening jambs, wall lines, overall) on all four sides, solid column markers at wall junctions, room name + width × depth labels, stair UP arrows, hatched casework, a north arrow, a sheet frame, and a title block with the enclosed-area statement. Elevations get a matching monochrome style. Selectable per export (SVG/PNG/PDF) from the export menu.
 - Photoreal rendering: an in-viewport progressive GPU path tracer with draft/standard/fine sample targets, live progress, stop-early, and PNG download. First render on a device compiles the shader (up to a couple of minutes); later renders start quickly.
 - Facade kit category: glass railings, wood slat screens, cove strip lights, and planters. Strip lights glow and cast light in evening and night modes.

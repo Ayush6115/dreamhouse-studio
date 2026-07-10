@@ -1,4 +1,4 @@
-import type { DesignDocument, Facade, Level, Point, WallElement } from '../../types';
+import type { DesignDocument, Facade, Level, OpeningElement, Point, WallElement } from '../../types';
 import { isFurniture, isOpening, isRoom, isWall } from '../../types';
 import { ensureClockwise, polygonBounds, polygonCentroid } from '../../geometry/polygon';
 import { dimensionChains } from '../../geometry/dimchains';
@@ -48,6 +48,34 @@ function dimLine(a: Point, b: Point, offsetM: number, unit: DesignDocument['unit
     <text x="0" y="0" transform="translate(${num(mid.x)} ${num(mid.y)}) rotate(${num(ang)}) translate(0 -0.09)"
       font-size="0.24" text-anchor="middle" fill="${color}" font-family="sans-serif">${esc(formatLength(d, unit))}</text>
   </g>`;
+}
+
+/**
+ * Door leaf + swing symbol in wall-local space (the white gap is drawn by the
+ * caller). Handles single, double, and sliding leaves.
+ */
+function doorSymbolSVG(o: OpeningElement, w: number, color: string): string {
+  const s = o.swing ?? 1;
+  if (o.style === 'sliding') {
+    // Two offset leaves passing each other.
+    return (
+      `<line x1="${num(-w / 2)}" y1="-0.045" x2="0.05" y2="-0.045" stroke="${color}" stroke-width="0.04"/>` +
+      `<line x1="-0.05" y1="0.045" x2="${num(w / 2)}" y2="0.045" stroke="${color}" stroke-width="0.04"/>`
+    );
+  }
+  if (o.style === 'double') {
+    const h = w / 2;
+    return (
+      `<line x1="${num(-w / 2)}" y1="0" x2="${num(-w / 2)}" y2="${num(-s * h)}" stroke="${color}" stroke-width="0.03"/>` +
+      `<path d="M 0 0 A ${num(h)} ${num(h)} 0 0 ${s === 1 ? 0 : 1} ${num(-w / 2)} ${num(-s * h)}" fill="none" stroke="${color}" stroke-width="0.016"/>` +
+      `<line x1="${num(w / 2)}" y1="0" x2="${num(w / 2)}" y2="${num(-s * h)}" stroke="${color}" stroke-width="0.03"/>` +
+      `<path d="M 0 0 A ${num(h)} ${num(h)} 0 0 ${s === 1 ? 1 : 0} ${num(w / 2)} ${num(-s * h)}" fill="none" stroke="${color}" stroke-width="0.016"/>`
+    );
+  }
+  return (
+    `<line x1="${num(-w / 2)}" y1="0" x2="${num(-w / 2)}" y2="${num(-s * w)}" stroke="${color}" stroke-width="0.03"/>` +
+    `<path d="M ${num(w / 2)} 0 A ${num(w)} ${num(w)} 0 0 ${s === 1 ? 0 : 1} ${num(-w / 2)} ${num(-s * w)}" fill="none" stroke="${color}" stroke-width="0.016"/>`
+  );
 }
 
 /** Floor-plan drawing of one level. */
@@ -156,11 +184,7 @@ function planPresentationSVG(doc: DesignDocument, levelId: string): string {
       `<line x1="${num(w / 2)}" y1="${num(-th / 2)}" x2="${num(w / 2)}" y2="${num(th / 2)}" stroke="#4a463d" stroke-width="0.025"/>`,
     ];
     if (o.type === 'door') {
-      const s = o.swing ?? 1;
-      inner.push(
-        `<line x1="${num(-w / 2)}" y1="0" x2="${num(-w / 2)}" y2="${num(-s * w)}" stroke="#4a463d" stroke-width="0.03"/>`,
-        `<path d="M ${num(w / 2)} 0 A ${num(w)} ${num(w)} 0 0 ${s === 1 ? 0 : 1} ${num(-w / 2)} ${num(-s * w)}" fill="none" stroke="#4a463d" stroke-width="0.02"/>`,
-      );
+      inner.push(doorSymbolSVG(o, w, '#4a463d'));
     } else {
       inner.push(
         `<rect x="${num(-w / 2)}" y="${num(-th / 2)}" width="${num(w)}" height="${num(th)}" fill="none" stroke="#4a463d" stroke-width="0.02"/>`,
@@ -372,9 +396,14 @@ function planWorkingSVG(doc: DesignDocument, levelId: string): string {
     const c = polygonCentroid(r.boundary);
     const rb = polygonBounds(r.boundary);
     const size = `${formatLength(rb.max.x - rb.min.x, unit)} × ${formatLength(rb.max.y - rb.min.y, unit)}`;
+    // Fit the label inside its own room so neighbours never collide.
+    const roomW = rb.max.x - rb.min.x;
+    const name = r.name.toUpperCase();
+    const nameSize = Math.min(0.34, Math.max(0.16, (roomW * 0.85) / (name.length * 0.66)));
+    const sizeSize = Math.min(0.27, nameSize * 0.82);
     parts.push(
-      `<text x="${num(c.x)}" y="${num(c.y - 0.1)}" font-size="0.34" text-anchor="middle" fill="${INK}" font-family="sans-serif" font-weight="700" letter-spacing="0.03">${esc(r.name.toUpperCase())}</text>`,
-      `<text x="${num(c.x)}" y="${num(c.y + 0.32)}" font-size="0.27" text-anchor="middle" fill="${INK_MID}" font-family="sans-serif">${esc(size)}</text>`,
+      `<text x="${num(c.x)}" y="${num(c.y - 0.1)}" font-size="${num(nameSize)}" text-anchor="middle" fill="${INK}" font-family="sans-serif" font-weight="700">${esc(name)}</text>`,
+      `<text x="${num(c.x)}" y="${num(c.y + 0.32)}" font-size="${num(sizeSize)}" text-anchor="middle" fill="${INK_MID}" font-family="sans-serif">${esc(size)}</text>`,
     );
   }
 
@@ -483,11 +512,7 @@ function planWorkingSVG(doc: DesignDocument, levelId: string): string {
       `<line x1="${num(w / 2)}" y1="${num(-th / 2)}" x2="${num(w / 2)}" y2="${num(th / 2)}" stroke="${INK}" stroke-width="0.025"/>`,
     ];
     if (o.type === 'door') {
-      const s = o.swing ?? 1;
-      inner.push(
-        `<line x1="${num(-w / 2)}" y1="0" x2="${num(-w / 2)}" y2="${num(-s * w)}" stroke="${INK}" stroke-width="0.03"/>`,
-        `<path d="M ${num(w / 2)} 0 A ${num(w)} ${num(w)} 0 0 ${s === 1 ? 0 : 1} ${num(-w / 2)} ${num(-s * w)}" fill="none" stroke="${INK}" stroke-width="0.016"/>`,
-      );
+      inner.push(doorSymbolSVG(o, w, INK));
     } else {
       // Triple-line window convention.
       inner.push(

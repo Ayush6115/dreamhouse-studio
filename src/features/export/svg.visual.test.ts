@@ -15,7 +15,11 @@ describe('svg drawing styles', () => {
 
   it('renders presentation and working styles for the examples', () => {
     mkdirSync('.visual-out', { recursive: true });
-    for (const file of ['starter-cottage.dreamhouse.json', 'courtyard-villa.dreamhouse.json']) {
+    for (const file of [
+      'starter-cottage.dreamhouse.json',
+      'courtyard-villa.dreamhouse.json',
+      'urban-residence.dreamhouse.json',
+    ]) {
       const doc = load(file);
       for (const level of doc.levels) {
         const working = planSVG(doc, level.id, 'working');

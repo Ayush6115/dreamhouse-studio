@@ -11,6 +11,12 @@ interface ExportRegistry {
   glCanvas: HTMLCanvasElement | null;
   /** Live three.js scene while the 3D view is mounted (for GLB export). */
   scene3d: THREE.Scene | null;
+  /** Live renderer + camera + frameloop control (for the photoreal renderer). */
+  three: {
+    gl: THREE.WebGLRenderer;
+    camera: THREE.Camera;
+    setFrameloop: (mode: 'always' | 'demand' | 'never') => void;
+  } | null;
   /** Cached 3D snapshot from the last time the 3D view was open. */
   last3DSnapshot: string | null;
 }
@@ -20,6 +26,7 @@ export const exportRegistry: ExportRegistry = {
   elevationStage: null,
   glCanvas: null,
   scene3d: null,
+  three: null,
   last3DSnapshot: null,
 };
 

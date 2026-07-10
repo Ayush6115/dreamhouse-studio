@@ -319,6 +319,81 @@ export function FurnitureModel({ kind, w, d, h, color, roughness, metalness }: M
           <Cyl p={[0, 0.08, 0]} r={w / 2} rTop={w * 0.3} h={0.16} m={{ color: '#e8dcc2', roughness: 0.9 }} />
         </group>
       );
+    case 'railing': {
+      // Frameless glass balustrade: steel shoe, glass panels, slim handrail.
+      const posts = Math.max(2, Math.round(w / 1.2) + 1);
+      return (
+        <group>
+          <B p={[0, 0.04, 0]} s={[w, 0.08, Math.max(0.06, d)]} m={DARK} />
+          <mesh position={[0, h / 2, 0]} castShadow>
+            <boxGeometry args={[w - 0.04, h - 0.12, 0.016]} />
+            <meshPhysicalMaterial
+              color="#bcd6e4"
+              roughness={0.05}
+              metalness={0}
+              transparent
+              opacity={0.28}
+              transmission={0.6}
+            />
+          </mesh>
+          {Array.from({ length: posts }, (_, i) => (
+            <B
+              key={i}
+              p={[-w / 2 + 0.03 + ((w - 0.06) * i) / (posts - 1), h / 2, 0]}
+              s={[0.03, h - 0.08, 0.03]}
+              m={{ color: '#8f979e', roughness: 0.35, metalness: 0.85 }}
+            />
+          ))}
+          <B p={[0, h - 0.02, 0]} s={[w, 0.04, Math.max(0.05, d * 0.7)]} m={{ color: '#7c848b', roughness: 0.3, metalness: 0.9 }} />
+        </group>
+      );
+    }
+    case 'slats': {
+      // Vertical wood-slat privacy screen.
+      const count = Math.max(3, Math.round(w / 0.15));
+      const slatW = (w / count) * 0.55;
+      return (
+        <group>
+          <B p={[0, 0.03, 0]} s={[w, 0.06, Math.max(0.05, d)]} m={DARK} />
+          <B p={[0, h - 0.03, 0]} s={[w, 0.06, Math.max(0.05, d)]} m={DARK} />
+          {Array.from({ length: count }, (_, i) => (
+            <B
+              key={i}
+              p={[-w / 2 + (w * (i + 0.5)) / count, h / 2, 0]}
+              s={[slatW, h - 0.1, Math.max(0.04, d * 0.6)]}
+              m={m}
+            />
+          ))}
+        </group>
+      );
+    }
+    case 'strip-light':
+      // Cove/profile LED strip: aluminium channel + emissive diffuser.
+      return (
+        <group>
+          <B p={[0, h * 0.75, 0]} s={[w, h * 0.5, d]} m={DARK} />
+          <mesh position={[0, h * 0.25, 0]}>
+            <boxGeometry args={[w - 0.02, h * 0.5, d * 0.8]} />
+            <meshStandardMaterial color="#fff2d8" emissive="#ffd9a0" emissiveIntensity={2.2} toneMapped={false} />
+          </mesh>
+        </group>
+      );
+    case 'planter': {
+      const soilH = h * 0.85;
+      const shrubs = Math.max(1, Math.round(w / 0.45));
+      return (
+        <group>
+          <B p={[0, h / 2, 0]} s={[w, h, d]} m={m} />
+          <B p={[0, soilH, 0]} s={[w - 0.08, 0.04, d - 0.08]} m={{ color: '#4a3b2c', roughness: 1 }} />
+          {Array.from({ length: shrubs }, (_, i) => (
+            <mesh key={i} position={[-w / 2 + (w * (i + 0.5)) / shrubs, soilH + d * 0.35, 0]} castShadow>
+              <sphereGeometry args={[Math.min(d, w / shrubs) * 0.42, 12, 10]} />
+              <meshStandardMaterial color={i % 2 ? '#5c8a4c' : '#6d9c58'} roughness={1} />
+            </mesh>
+          ))}
+        </group>
+      );
+    }
     case 'box':
     default:
       return <B p={[0, h / 2, 0]} s={[w, h, d]} m={m} />;

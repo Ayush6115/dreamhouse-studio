@@ -19,6 +19,7 @@ import { GltfModel } from './GltfModel';
 import { RoofMesh } from './RoofMesh';
 import { assetUrl } from '../../assetUrl';
 import { ElementMaterial, MaterialErrorBoundary } from './materials3d';
+import { PhotorealRender } from './PhotorealRender';
 import { exportRegistry } from '../export/registry';
 
 /**
@@ -253,9 +254,9 @@ function Room3D({ room, baseY }: { room: RoomElement; baseY: number }) {
   );
 }
 
-const LAMP_MODELS = new Set(['lamp-floor', 'lamp-ceiling']);
+const LAMP_MODELS = new Set(['lamp-floor', 'lamp-ceiling', 'strip-light']);
 
-function Items3D({ level, night }: { level: Level; night: boolean }) {
+function Items3D({ level, lampsOn }: { level: Level; lampsOn: boolean }) {
   const setSelection = useDesignStore((s) => s.setSelection);
   const selectedIds = useDesignStore((s) => s.selectedIds);
   const baseY = level.elevation;
@@ -386,11 +387,11 @@ function Items3D({ level, night }: { level: Level; night: boolean }) {
               ) : (
                 parametric
               )}
-              {night && isLamp && (
+              {lampsOn && isLamp && (
                 <pointLight
                   position={[0, def?.model === 'lamp-floor' ? h - 0.15 : h * 0.4, 0]}
-                  intensity={7}
-                  distance={8}
+                  intensity={def?.model === 'strip-light' ? 3.5 : 7}
+                  distance={def?.model === 'strip-light' ? 5 : 8}
                   color="#ffd9a0"
                 />
               )}
@@ -410,7 +411,7 @@ function Items3D({ level, night }: { level: Level; night: boolean }) {
   );
 }
 
-function Level3D({ level, night }: { level: Level; night: boolean }) {
+function Level3D({ level, lampsOn }: { level: Level; lampsOn: boolean }) {
   const walls = useMemo(() => level.elements.filter(isWall), [level.elements]);
   const openings = useMemo(() => level.elements.filter(isOpening), [level.elements]);
   const rooms = useMemo(() => level.elements.filter(isRoom), [level.elements]);
@@ -436,7 +437,7 @@ function Level3D({ level, night }: { level: Level; night: boolean }) {
           <Opening3D key={o.id} opening={o} host={host} baseY={baseY} />
         ) : null;
       })}
-      <Items3D level={level} night={night} />
+      <Items3D level={level} lampsOn={lampsOn} />
     </group>
   );
 }
@@ -498,20 +499,24 @@ function Ground({ night, plot }: { night: boolean; plot: Point[] }) {
   );
 }
 
-/** ACES tone mapping + exposure that follows day/night. */
-function RendererSettings({ night }: { night: boolean }) {
+/** ACES tone mapping + exposure that follows the time-of-day mode. */
+function RendererSettings({ mode }: { mode: 'day' | 'evening' | 'night' }) {
   const gl = useThree((s) => s.gl);
   const scene = useThree((s) => s.scene);
+  const camera = useThree((s) => s.camera);
+  const setFrameloop = useThree((s) => s.setFrameloop);
   useEffect(() => {
     gl.toneMapping = THREE.ACESFilmicToneMapping;
-    gl.toneMappingExposure = night ? 0.7 : 1.05;
-  }, [gl, night]);
+    gl.toneMappingExposure = mode === 'night' ? 0.7 : mode === 'evening' ? 0.9 : 1.05;
+  }, [gl, mode]);
   useEffect(() => {
     exportRegistry.scene3d = scene;
+    exportRegistry.three = { gl, camera, setFrameloop };
     return () => {
       if (exportRegistry.scene3d === scene) exportRegistry.scene3d = null;
+      if (exportRegistry.three?.gl === gl) exportRegistry.three = null;
     };
-  }, [scene]);
+  }, [scene, gl, camera, setFrameloop]);
   return null;
 }
 
@@ -535,7 +540,11 @@ function sunPosition(hour: number, northAngleDeg: number, distance = 55): [numbe
 
 export function Scene3D() {
   const doc = useDesignStore((s) => s.doc);
-  const night = useDesignStore((s) => s.dayNight === 'night');
+  const dayNight = useDesignStore((s) => s.dayNight);
+  const night = dayNight === 'night';
+  const evening = dayNight === 'evening';
+  const lampsOn = night || evening;
+  const skyColor = night ? '#0a0f1c' : evening ? '#35425f' : '#bfd9ec';
   const sunHour = useDesignStore((s) => s.sunHour);
   const highQuality = useUiStore((s) => s.renderQuality === 'high');
 
@@ -564,7 +573,8 @@ export function Scene3D() {
   }, [doc]);
 
   return (
-    <div className="h-full w-full" style={{ background: night ? '#0a0f1c' : '#bfd9ec' }}>
+    <div className="relative h-full w-full" style={{ background: skyColor }}>
+      <PhotorealRender />
       <Canvas
         shadows
         camera={{ position: [center.x + 14, 12, center.y + 14], fov: 50 }}
@@ -573,19 +583,39 @@ export function Scene3D() {
           exportRegistry.glCanvas = gl.domElement;
         }}
       >
-        <RendererSettings night={night} />
+        <RendererSettings mode={dayNight} />
         <SoftShadows size={18} samples={10} focus={0.6} />
-        <color attach="background" args={[night ? '#0a0f1c' : '#bfd9ec']} />
-        <fog attach="fog" args={[night ? '#0a0f1c' : '#cfe0ee', 60, 220]} />
+        <color attach="background" args={[skyColor]} />
+        <fog attach="fog" args={[night ? '#0a0f1c' : evening ? '#35425f' : '#cfe0ee', 60, 220]} />
 
         <Suspense fallback={null}>
-          <Environment files={night ? HDRI_NIGHT : HDRI_DAY} environmentIntensity={night ? 0.5 : 0.65} />
+          <Environment
+            files={night ? HDRI_NIGHT : HDRI_DAY}
+            environmentIntensity={night ? 0.5 : evening ? 0.28 : 0.65}
+          />
         </Suspense>
 
         {night ? (
           <>
             <ambientLight intensity={0.12} color="#7285a8" />
             <directionalLight position={[-25, 35, -12]} intensity={0.3} color="#9db4d6" castShadow />
+          </>
+        ) : evening ? (
+          <>
+            {/* Dusk: low warm sun raking across the facades. */}
+            <ambientLight intensity={0.22} color="#8d9bb8" />
+            <directionalLight
+              position={sunPosition(17.6, doc.plot.northAngle)}
+              intensity={1.15}
+              color="#ff9e63"
+              castShadow
+              shadow-mapSize={[2048, 2048]}
+              shadow-camera-left={-35}
+              shadow-camera-right={35}
+              shadow-camera-top={35}
+              shadow-camera-bottom={-35}
+              shadow-bias={-0.0002}
+            />
           </>
         ) : (
           <>
@@ -607,7 +637,7 @@ export function Scene3D() {
 
         <Ground night={night} plot={doc.plot.boundary} />
         {doc.levels.map((level) => (
-          <Level3D key={level.id} level={level} night={night} />
+          <Level3D key={level.id} level={level} lampsOn={lampsOn} />
         ))}
 
         <OrbitControls

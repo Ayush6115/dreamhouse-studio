@@ -69,6 +69,8 @@ export function ExportMenu() {
 
   const quality = useUiStore((s) => s.exportQuality);
   const setQuality = useUiStore((s) => s.setExportQuality);
+  const style = useUiStore((s) => s.exportStyle);
+  const setStyle = useUiStore((s) => s.setExportStyle);
 
   const items: { label: string; hint?: string; onClick: () => void }[] = [
     {
@@ -76,7 +78,7 @@ export function ExportMenu() {
       hint: 'vector — infinite quality',
       onClick: run(() => {
         const s = useDesignStore.getState();
-        exportPlanSVG(s.doc, s.activeLevelId);
+        exportPlanSVG(s.doc, s.activeLevelId, style);
       }, 'Plan SVG exported'),
     },
     {
@@ -84,7 +86,7 @@ export function ExportMenu() {
       hint: quality,
       onClick: run(() => {
         const s = useDesignStore.getState();
-        return exportPlanPNG(s.doc, s.activeLevelId, quality);
+        return exportPlanPNG(s.doc, s.activeLevelId, quality, style);
       }, 'Plan PNG exported'),
     },
     {
@@ -92,7 +94,7 @@ export function ExportMenu() {
       hint: 'vector — infinite quality',
       onClick: run(() => {
         const s = useDesignStore.getState();
-        exportElevationSVG(s.doc, s.activeFacadeId);
+        exportElevationSVG(s.doc, s.activeFacadeId, style);
       }, 'Elevation SVG exported'),
     },
     {
@@ -100,7 +102,7 @@ export function ExportMenu() {
       hint: quality,
       onClick: run(() => {
         const s = useDesignStore.getState();
-        return exportElevationPNG(s.doc, s.activeFacadeId, quality);
+        return exportElevationPNG(s.doc, s.activeFacadeId, quality, style);
       }, 'Elevation PNG exported'),
     },
     {
@@ -129,7 +131,7 @@ export function ExportMenu() {
       hint: `all sheets · ${quality}`,
       onClick: run(() => {
         const s = useDesignStore.getState();
-        return exportPDFReport(s.doc, s.activeLevelId, s.activeFacadeId, quality);
+        return exportPDFReport(s.doc, s.activeLevelId, s.activeFacadeId, quality, style);
       }, 'PDF report exported'),
     },
   ];
@@ -177,6 +179,28 @@ export function ExportMenu() {
                   ${quality === q ? 'bg-accent-soft text-accent' : 'text-ink-dim hover:bg-surface-3 hover:text-ink'}`}
               >
                 {q}
+              </button>
+            ))}
+          </div>
+          {/* drawing style */}
+          <div className="flex items-center gap-1 border-b border-edge-soft px-2 pb-1.5 pt-1">
+            <span className="mr-1 text-[10px] font-semibold uppercase tracking-wider text-ink-faint">
+              Style
+            </span>
+            {(
+              [
+                ['presentation', 'Colored sheet with room fills'],
+                ['working', 'B/W working drawing: dimension chains, title block, north arrow'],
+              ] as const
+            ).map(([st, tip]) => (
+              <button
+                key={st}
+                title={tip}
+                onClick={() => setStyle(st)}
+                className={`h-6 flex-1 rounded text-[10px] font-medium capitalize transition-colors
+                  ${style === st ? 'bg-accent-soft text-accent' : 'text-ink-dim hover:bg-surface-3 hover:text-ink'}`}
+              >
+                {st === 'working' ? 'Working dwg' : 'Presentation'}
               </button>
             ))}
           </div>

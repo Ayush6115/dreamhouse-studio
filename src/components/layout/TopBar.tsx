@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { FolderOpen, Layout, Magnet, Moon, Redo2, Ruler, Save, Sparkles, Sun } from 'lucide-react';
+import { FolderOpen, Layout, Magnet, Moon, Redo2, Ruler, Save, Sparkles, Sun, Sunset } from 'lucide-react';
 import { useDesignStore } from '../../store/designStore';
 import { useUiStore } from '../../store/uiStore';
 import { downloadDocumentJSON, importDocumentJSON } from '../../store/persistence';
@@ -149,10 +149,18 @@ export function TopBar() {
             </label>
           )}
           <IconButton
-            label={dayNight === 'day' ? 'Switch to night' : 'Switch to day'}
-            onClick={() => setDayNight(dayNight === 'day' ? 'night' : 'day')}
+            label={
+              dayNight === 'day'
+                ? 'Day — click for evening'
+                : dayNight === 'evening'
+                  ? 'Evening — click for night'
+                  : 'Night — click for day'
+            }
+            onClick={() =>
+              setDayNight(dayNight === 'day' ? 'evening' : dayNight === 'evening' ? 'night' : 'day')
+            }
           >
-            {dayNight === 'day' ? <Sun size={16} /> : <Moon size={16} />}
+            {dayNight === 'day' ? <Sun size={16} /> : dayNight === 'evening' ? <Sunset size={16} /> : <Moon size={16} />}
           </IconButton>
           <IconButton
             label={renderQuality === 'high' ? 'Quality: High (AO + SMAA) — click for Fast' : 'Quality: Fast — click for High'}

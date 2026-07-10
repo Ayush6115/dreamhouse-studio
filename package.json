@@ -42,6 +42,7 @@
     "react-dom": "^19.0.0",
     "react-konva": "^19.0.0",
     "three": "^0.178.0",
+    "three-gpu-pathtracer": "^0.0.23",
     "zustand": "^5.0.0"
   },
   "devDependencies": {

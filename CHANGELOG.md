@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+- Working-drawing export style: monochrome plan sheets with hierarchical dimension chains (opening jambs, wall lines, overall) on all four sides, solid column markers at wall junctions, room name + width × depth labels, stair UP arrows, hatched casework, a north arrow, a sheet frame, and a title block with the enclosed-area statement. Elevations get a matching monochrome style. Selectable per export (SVG/PNG/PDF) from the export menu.
+- Photoreal rendering: an in-viewport progressive GPU path tracer with draft/standard/fine sample targets, live progress, stop-early, and PNG download. First render on a device compiles the shader (up to a couple of minutes); later renders start quickly.
+- Facade kit category: glass railings, wood slat screens, cove strip lights, and planters. Strip lights glow and cast light in evening and night modes.
+- Evening scene mode: the day/night toggle now cycles day → evening → night; evening uses a low warm sun with lamps lit.
+- Plan canvas room labels now show width × depth alongside the area.
+- Matte dark fascia material for modern slab edges and parapet bands.
+
 ## [1.0.0] — 2026-07-04
 
 First public release. Highlights across the pre-release development line:

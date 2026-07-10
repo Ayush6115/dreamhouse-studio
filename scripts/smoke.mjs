@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { mkdirSync } from 'node:fs';
+import fs, { mkdirSync } from 'node:fs';
 import path from 'node:path';
 
 const OUT = path.resolve(process.argv[2] ?? '.');
@@ -291,10 +291,15 @@ await page.getByRole('button', { name: /3D model · GLB/ }).click();
 const dglb = await dlGlb;
 ok('GLB model exports', (await dglb.path()) !== null, dglb.suggestedFilename());
 await page.getByRole('button', { name: /Quality: Fast/ }).click();
-await page.getByRole('button', { name: /Switch to night/i }).click();
+ok('photoreal render button shows', (await page.getByRole('button', { name: /Photoreal/i }).count()) >= 1);
+await page.getByRole('button', { name: /Day — click for evening/ }).click();
+await page.waitForTimeout(1500);
+ok('evening mode engages', (await page.getByRole('button', { name: /Evening — click for night/ }).count()) >= 1);
+await page.screenshot({ path: path.join(OUT, 'v2-4b-3d-evening.png') });
+await page.getByRole('button', { name: /Evening — click for night/ }).click();
 await page.waitForTimeout(2500);
 await page.screenshot({ path: path.join(OUT, 'v2-4-3d-night.png') });
-await page.getByRole('button', { name: /Switch to day/i }).click();
+await page.getByRole('button', { name: /Night — click for day/ }).click();
 await page.waitForTimeout(500);
 
 // 5. Projects dialog
@@ -317,6 +322,17 @@ await page.waitForTimeout(400);
 await page.getByRole('button', { name: 'Export' }).click();
 await page.waitForTimeout(200);
 ok('export quality selector shows', (await page.locator('text=Quality').count()) >= 1);
+ok('export style selector shows', (await page.getByRole('button', { name: 'Working dwg' }).count()) >= 1);
+await page.getByRole('button', { name: 'Working dwg' }).click();
+await page.waitForTimeout(150);
+const dlWorking = page.waitForEvent('download', { timeout: 30000 });
+await page.getByRole('button', { name: /Floor plan · SVG/ }).click();
+const dw = await dlWorking;
+ok('working-drawing SVG exports', (await dw.path()) !== null, dw.suggestedFilename());
+const workingSvg = fs.readFileSync(await dw.path(), 'utf8');
+ok('working drawing has title block + chains', workingSvg.includes('ENCLOSED AREA') && workingSvg.includes('PLAN'));
+await page.getByRole('button', { name: 'Export' }).click();
+await page.waitForTimeout(200);
 await page.getByRole('button', { name: 'ultra', exact: true }).click();
 await page.waitForTimeout(150);
 const dl = page.waitForEvent('download', { timeout: 90000 });

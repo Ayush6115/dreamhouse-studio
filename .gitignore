@@ -14,6 +14,12 @@ public/assets/hdri/
 # Test artifacts
 test-results/
 playwright-report/
+.visual-out/
+/v*-*.png
+/Demo_House_report.pdf
+
+# Local reference material
+/Sample/
 
 # Editor / OS / local tooling
 .vscode/*

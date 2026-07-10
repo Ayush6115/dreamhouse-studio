@@ -202,6 +202,46 @@ export function Symbol2DShape({ kind, w, d, color }: SymbolProps) {
           <Line points={[0, -hd, 0, hd]} {...thin} />
         </Group>
       );
+    case 'railing':
+      // Double line with post dots — balustrade convention.
+      return (
+        <Group>
+          <Line points={[-hw, -hd, hw, -hd]} {...thin} />
+          <Line points={[-hw, hd, hw, hd]} {...thin} />
+          {Array.from({ length: Math.max(2, Math.round(w / 0.6) + 1) }, (_, i) => (
+            <Circle key={i} x={-hw + (w * i) / Math.max(1, Math.round(w / 0.6))} y={0} radius={0.03} fill={S} />
+          ))}
+        </Group>
+      );
+    case 'slats': {
+      const slatCount = Math.max(3, Math.round(w / 0.15));
+      return (
+        <Group>
+          {body}
+          {Array.from({ length: slatCount }, (_, i) => (
+            <Line
+              key={i}
+              points={[-hw + (w * (i + 0.5)) / slatCount, -hd, -hw + (w * (i + 0.5)) / slatCount, hd]}
+              {...thin}
+            />
+          ))}
+        </Group>
+      );
+    }
+    case 'strip-light':
+      return (
+        <Group>
+          <Rect x={-hw} y={-hd} width={w} height={d} fill="rgba(255,214,140,0.7)" {...thin} />
+          <Line points={[-hw, 0, hw, 0]} stroke="#c9962e" strokeWidth={1} strokeScaleEnabled={false} dash={[0.12, 0.08]} />
+        </Group>
+      );
+    case 'planter':
+      return (
+        <Group>
+          {body}
+          <Rect x={-hw + 0.05} y={-hd + 0.05} width={w - 0.1} height={d - 0.1} fill="rgba(126,158,106,0.5)" {...thin} />
+        </Group>
+      );
     case 'box':
     default:
       return body;

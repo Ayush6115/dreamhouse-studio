@@ -10,6 +10,17 @@ Plan and elevation exports are **generated from the design document, not screens
 
 PNG exports rasterize those same SVGs (`raster.ts`) at the user-selected quality (Draft 1× to Ultra 5×, ~55 px/m at 1×). The PDF report (`exporters.ts`, jsPDF) composes a metrics cover page plus one sheet per floor and per non-empty façade at the same quality setting.
 
+## Drawing styles
+
+Every sheet renders in one of two styles, selected in the export menu and applied to SVG, PNG, and PDF alike:
+
+- **Presentation** — the colored sheet: room fills, tinted plot, labeled areas.
+- **Working drawing** — a monochrome construction-drawing sheet. Walls render as solid black poché with column squares at junctions (`wallJunctions`), rooms carry `NAME` plus width × depth, staircases get treads and an UP arrow, wardrobes hatch. Around the building, `geometry/dimchains.ts` derives hierarchical dimension chains per side — an inner row segmented at opening jambs, a middle row at wall lines, and the overall — rendered with slash ticks. The sheet closes with a frame, a north arrow, and a title block stating the level name and enclosed (built-up) area.
+
+## Photoreal renders
+
+The 3D view's **Photoreal** button (`viewer3d/PhotorealRender.tsx`) runs `three-gpu-pathtracer` over the live scene: the realtime frameloop pauses, a `WebGLPathTracer` takes over the same canvas, and samples accumulate progressively (draft 120 / standard 350 / fine 800). The image can be saved as PNG at any point. The path-tracing megashader compiles in the driver on first use — up to a couple of minutes on some machines (the UI says so); the browser's shader cache makes subsequent renders start quickly. Multiple importance sampling is disabled deliberately: it keeps the shader small enough for ANGLE/D3D compilers on Windows.
+
 ## 3D outputs
 
 - **Snapshot PNG** — reads the live WebGL canvas (`preserveDrawingBuffer`). When the 3D view is closed, the last snapshot taken on leaving the view is used; the PDF notes when none exists.

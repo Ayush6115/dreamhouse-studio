@@ -41,6 +41,10 @@ export type Symbol2D =
   | 'lamp-ceiling'
   | 'ceiling-panel'
   | 'floor-patch'
+  | 'railing'
+  | 'slats'
+  | 'strip-light'
+  | 'planter'
   | 'box';
 
 export type Model3D =
@@ -71,6 +75,10 @@ export type Model3D =
   | 'floor-patch'
   | 'tree'
   | 'tree-fir'
+  | 'railing'
+  | 'slats'
+  | 'strip-light'
+  | 'planter'
   | 'box';
 
 export interface CatalogItem {
@@ -186,6 +194,17 @@ export const CATALOG: CatalogItem[] = [
   // Outdoor (parametric — CC0 photoscanned trees are 39–456 MB, too heavy for web)
   item('tree-leafy', 'Tree · Leafy', 'Outdoor', 3.2, 3.2, 4.5, 'grass', 'plant', 'tree'),
   item('tree-fir', 'Tree · Fir', 'Outdoor', 2.4, 2.4, 5.5, 'grass', 'plant', 'tree-fir'),
+
+  // Facade kit — modern-villa vocabulary: glass balustrades, slat screens,
+  // cove lighting and planters for terraces and balconies.
+  item('railing-glass', 'Glass Railing', 'Facade Kit', 2.0, 0.08, 1.05, 'glass', 'railing', 'railing'),
+  item('railing-glass-long', 'Glass Railing · Long', 'Facade Kit', 3.6, 0.08, 1.05, 'glass', 'railing', 'railing'),
+  item('slat-screen', 'Wood Slat Screen', 'Facade Kit', 2.4, 0.12, 2.7, 'wood-teak', 'slats', 'slats'),
+  item('slat-screen-wide', 'Wood Slat Screen · Wide', 'Facade Kit', 3.6, 0.12, 2.7, 'wood-teak', 'slats', 'slats'),
+  item('strip-light', 'Cove Strip Light', 'Facade Kit', 2.4, 0.08, 0.06, 'plaster-white', 'strip-light', 'strip-light', 2.85),
+  item('strip-light-short', 'Cove Strip Light · Short', 'Facade Kit', 1.2, 0.08, 0.06, 'plaster-white', 'strip-light', 'strip-light', 2.85),
+  item('planter-long', 'Planter · Long', 'Facade Kit', 1.8, 0.45, 0.45, 'concrete', 'planter', 'planter'),
+  item('planter-cube', 'Planter · Cube', 'Facade Kit', 0.5, 0.5, 0.5, 'concrete', 'planter', 'planter'),
 ];
 
 export const CATALOG_CATEGORIES = [...new Set(CATALOG.map((i) => i.category))];

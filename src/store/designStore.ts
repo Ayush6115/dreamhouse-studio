@@ -69,7 +69,7 @@ export interface DesignState {
   selectedIds: string[];
   tool: ToolId;
   viewMode: ViewMode;
-  dayNight: 'day' | 'night';
+  dayNight: 'day' | 'evening' | 'night';
   /** Time of day (6–18) driving the sun position in the 3D view. */
   sunHour: number;
   gridSize: number;
@@ -84,7 +84,7 @@ export interface DesignState {
   setTool: (tool: ToolId) => void;
   setViewMode: (mode: ViewMode) => void;
   setSelection: (ids: string[]) => void;
-  setDayNight: (v: 'day' | 'night') => void;
+  setDayNight: (v: 'day' | 'evening' | 'night') => void;
   setSunHour: (hour: number) => void;
   setGridSize: (size: number) => void;
   setSnapEnabled: (on: boolean) => void;

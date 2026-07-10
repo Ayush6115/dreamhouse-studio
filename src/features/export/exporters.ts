@@ -3,7 +3,7 @@ import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import type { DesignDocument } from '../../types';
 import { computeMetrics } from '../../store/calculations';
 import { formatArea, formatLength } from '../../geometry/units';
-import { elevationSVG, planSVG } from './svg';
+import { elevationSVG, planSVG, type DrawingStyle } from './svg';
 import { rasterizeSVG } from './raster';
 import { exportRegistry } from './registry';
 
@@ -42,32 +42,42 @@ export function svgToPng(svg: string, scale = 2): Promise<string> {
 
 // ------------------------------------------------------------ single files
 
-export function exportPlanSVG(doc: DesignDocument, levelId: string): void {
-  downloadText(planSVG(doc, levelId), `${safe(doc.name)}_plan.svg`);
+export function exportPlanSVG(
+  doc: DesignDocument,
+  levelId: string,
+  style: DrawingStyle = 'presentation',
+): void {
+  downloadText(planSVG(doc, levelId, style), `${safe(doc.name)}_plan.svg`);
 }
 
 export async function exportPlanPNG(
   doc: DesignDocument,
   levelId: string,
   quality: ExportQuality = 'high',
+  style: DrawingStyle = 'presentation',
 ): Promise<void> {
   downloadDataURL(
-    await svgToPng(planSVG(doc, levelId), QUALITY_SCALE[quality]),
+    await svgToPng(planSVG(doc, levelId, style), QUALITY_SCALE[quality]),
     `${safe(doc.name)}_plan.png`,
   );
 }
 
-export function exportElevationSVG(doc: DesignDocument, facadeId: string): void {
-  downloadText(elevationSVG(doc, facadeId), `${safe(doc.name)}_elevation.svg`);
+export function exportElevationSVG(
+  doc: DesignDocument,
+  facadeId: string,
+  style: DrawingStyle = 'presentation',
+): void {
+  downloadText(elevationSVG(doc, facadeId, style), `${safe(doc.name)}_elevation.svg`);
 }
 
 export async function exportElevationPNG(
   doc: DesignDocument,
   facadeId: string,
   quality: ExportQuality = 'high',
+  style: DrawingStyle = 'presentation',
 ): Promise<void> {
   downloadDataURL(
-    await svgToPng(elevationSVG(doc, facadeId), QUALITY_SCALE[quality]),
+    await svgToPng(elevationSVG(doc, facadeId, style), QUALITY_SCALE[quality]),
     `${safe(doc.name)}_elevation.png`,
   );
 }
@@ -157,6 +167,7 @@ export async function exportPDFReport(
   activeLevelId: string,
   activeFacadeId: string,
   quality: ExportQuality = 'high',
+  style: DrawingStyle = 'presentation',
 ): Promise<void> {
   const sheetScale = QUALITY_SCALE[quality];
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }); // 297 × 210
@@ -198,7 +209,7 @@ export async function exportPDFReport(
   for (const level of doc.levels) {
     pdf.addPage('a4', 'landscape');
     pageHeader(pdf, `Floor Plan — ${level.name}`, doc.name);
-    const png = await svgToPng(planSVG(doc, level.id), sheetScale);
+    const png = await svgToPng(planSVG(doc, level.id, style), sheetScale);
     await placeImage(pdf, png, 14, 24, 269, 176);
   }
 
@@ -208,7 +219,7 @@ export async function exportPDFReport(
   for (const facade of list) {
     pdf.addPage('a4', 'landscape');
     pageHeader(pdf, `Elevation — ${facade.name}`, doc.name);
-    const png = await svgToPng(elevationSVG(doc, facade.id), sheetScale);
+    const png = await svgToPng(elevationSVG(doc, facade.id, style), sheetScale);
     await placeImage(pdf, png, 14, 24, 269, 176);
   }
 

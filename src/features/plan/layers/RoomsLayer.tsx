@@ -3,8 +3,8 @@ import { VertexHandle } from '../VertexHandle';
 import type { RoomElement } from '../../../types';
 import { isRoom } from '../../../types';
 import { useDesignStore } from '../../../store/designStore';
-import { polygonArea, polygonCentroid } from '../../../geometry/polygon';
-import { formatArea } from '../../../geometry/units';
+import { polygonArea, polygonBounds, polygonCentroid } from '../../../geometry/polygon';
+import { formatArea, formatLength } from '../../../geometry/units';
 import { ROOM_FILLS } from '../../../library/roomColors';
 
 interface Props {
@@ -27,6 +27,8 @@ export function RoomsLayer({ vpScale }: Props) {
         const flat = room.boundary.flatMap((p) => [p.x, p.y]);
         const c = polygonCentroid(room.boundary);
         const area = polygonArea(room.boundary);
+        const rb = polygonBounds(room.boundary);
+        const sizeLabel = `${formatLength(rb.max.x - rb.min.x, unit, 1)} × ${formatLength(rb.max.y - rb.min.y, unit, 1)}`;
         const selected = selectedIds.includes(room.id);
         return (
           <Group key={room.id}>
@@ -51,12 +53,21 @@ export function RoomsLayer({ vpScale }: Props) {
                 align="center"
               />
               <Text
-                text={formatArea(area, unit)}
+                text={sizeLabel}
                 fontSize={10.5 / vpScale}
-                fill="#8a8272"
+                fill="#6f6857"
                 width={6}
                 x={-3}
                 y={1 / vpScale}
+                align="center"
+              />
+              <Text
+                text={formatArea(area, unit)}
+                fontSize={9.5 / vpScale}
+                fill="#8a8272"
+                width={6}
+                x={-3}
+                y={14 / vpScale}
                 align="center"
               />
             </Group>

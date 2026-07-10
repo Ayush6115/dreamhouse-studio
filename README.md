@@ -20,9 +20,11 @@ Make residential design approachable for homeowners while remaining precise enou
 - **Multi-floor** — basements through terraces with named presets, a floor switcher, a ghost underlay of the level below, and floor-height-linked staircases.
 - **Interior and façade stores** — 40+ interior items (32 backed by production CC0 photoscanned models) and 31 façade components; searchable with favorites and recents.
 - **Live calculations** — plot, buildable, built-up, and carpet areas plus total wall length, recomputed on every edit. Geometric values only, by design.
-- **3D viewer** — HDRI environment lighting, PBR textures, soft shadows, ambient occlusion, a sun-position slider tied to the plot's north angle, and day/night modes.
+- **3D viewer** — HDRI environment lighting, PBR textures, soft shadows, ambient occlusion, a sun-position slider tied to the plot's north angle, and day/evening/night modes.
+- **Photoreal renders** — an in-viewport progressive GPU path tracer (physically-based global illumination, soft shadows, real glass) with draft/standard/fine sample targets and one-click PNG export.
+- **Facade kit** — glass railings, wood slat screens, cove strip lights (they glow and cast light in evening/night modes), and planters for modern-villa terraces and balconies.
 - **Precision editing** — measure tool, text annotations, marquee selection, grouping, locking, align/distribute, arrow-key nudge, and 60-step undo.
-- **Exports** — floor plans and elevations as true-vector SVG or PNG, 3D snapshots, a full glTF (`.glb`) model, and a compiled PDF report, with selectable raster quality up to 5×.
+- **Exports** — floor plans and elevations as true-vector SVG or PNG, 3D snapshots, a full glTF (`.glb`) model, and a compiled PDF report, with selectable raster quality up to 5×. Two drawing styles: a colored presentation sheet, or a monochrome working drawing with hierarchical dimension chains, column markers, room sizes, a north arrow, and a title block with the enclosed area.
 - **Projects** — multiple projects with thumbnails, rename/duplicate/delete, autosave, and portable `.dreamhouse.json` files.
 
 ## Technology stack

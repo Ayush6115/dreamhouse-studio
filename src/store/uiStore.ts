@@ -44,6 +44,9 @@ interface UiState {
   /** Raster resolution for exports (persisted). */
   exportQuality: 'draft' | 'standard' | 'high' | 'ultra';
   setExportQuality: (q: 'draft' | 'standard' | 'high' | 'ultra') => void;
+  /** Drawing style for plan/elevation sheets (persisted). */
+  exportStyle: 'presentation' | 'working';
+  setExportStyle: (s: 'presentation' | 'working') => void;
   /** Properties panel visibility on small screens (overlay mode). */
   mobilePanelOpen: boolean;
   setMobilePanelOpen: (open: boolean) => void;
@@ -89,6 +92,22 @@ export const useUiStore = create<UiState>()((set, get) => ({
       /* non-fatal */
     }
     set({ exportQuality });
+  },
+  exportStyle: (() => {
+    try {
+      const v = localStorage.getItem('dreamhouse:export-style');
+      return v === 'working' ? v : 'presentation';
+    } catch {
+      return 'presentation';
+    }
+  })(),
+  setExportStyle: (exportStyle) => {
+    try {
+      localStorage.setItem('dreamhouse:export-style', exportStyle);
+    } catch {
+      /* non-fatal */
+    }
+    set({ exportStyle });
   },
   setCursorWorld: (cursorWorld) => set({ cursorWorld }),
   setZoom: (zoom) => set({ zoom }),

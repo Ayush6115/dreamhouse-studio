@@ -43,6 +43,7 @@ export const MATERIALS: Material[] = [
   makeMaterial({ id: 'roof-tiles', name: 'Roof · Clay Tiles', color: '#ffffff', texture: 'roof-tiles', textureScale: 1.5, finish: 'textured', roughness: 1 }),
   makeMaterial({ id: 'roof-tiles-dark', name: 'Roof · Slate Tiles', color: '#ffffff', texture: 'roof-tiles-dark', textureScale: 1.5, finish: 'textured', roughness: 1 }),
   makeMaterial({ id: 'roof-metal', name: 'Roof · Metal Sheet', color: '#7d8489', finish: 'satin', roughness: 0.45, metalness: 0.7 }),
+  makeMaterial({ id: 'fascia-dark', name: 'Fascia · Matte Dark', color: '#26282c', roughness: 0.85 }),
 
   // Glass & metal
   makeMaterial({ id: 'glass', name: 'Glass', color: '#aac9dd', finish: 'glossy', roughness: 0.08, metalness: 0.1 }),

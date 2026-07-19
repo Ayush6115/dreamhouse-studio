@@ -1,6 +1,6 @@
 {
- "id": "example-urban-residence",
- "name": "Urban Residence",
+ "id": "example-urban-residence-v3",
+ "name": "Urban Residence (v3)",
  "version": 1,
  "unitSystem": "imperial",
  "plot": {
@@ -3389,40 +3389,7 @@
      "meta": {}
     },
     {
-     "id": "f-89",
-     "type": "furniture",
-     "name": "Car · SUV",
-     "catalogId": "car-suv",
-     "transform": {
-      "position": {
-       "x": 1.905,
-       "y": 13.5941,
-       "z": 0
-      },
-      "rotation": 0,
-      "scale": {
-       "x": 1,
-       "y": 1,
-       "z": 1
-      }
-     },
-     "dimensions": {
-      "width": 1.95,
-      "height": 1.75,
-      "depth": 4.7
-     },
-     "material": {
-      "id": "steel",
-      "name": "Car · SUV",
-      "color": "#3d434a",
-      "finish": "matte",
-      "roughness": 0.25,
-      "metalness": 0.6
-     },
-     "meta": {}
-    },
-    {
-     "id": "rf-90",
+     "id": "rf-89",
      "type": "roof",
      "name": "Terrace Slab",
      "roofStyle": "flat",
@@ -3460,7 +3427,7 @@
      }
     },
     {
-     "id": "t-136",
+     "id": "t-134",
      "type": "note",
      "text": "COVERED ENTRANCE",
      "name": "Note",
@@ -3492,7 +3459,7 @@
      }
     },
     {
-     "id": "t-137",
+     "id": "t-135",
      "type": "note",
      "text": "6 FT FRONT SETBACK / OPEN APRON",
      "name": "Note",
@@ -3532,7 +3499,7 @@
    "height": 3.05,
    "elements": [
     {
-     "id": "r-115",
+     "id": "r-114",
      "type": "room",
      "name": "Attached Bath 3",
      "roomType": "bathroom",
@@ -3584,7 +3551,7 @@
      }
     },
     {
-     "id": "r-116",
+     "id": "r-115",
      "type": "room",
      "name": "Store",
      "roomType": "store",
@@ -3636,7 +3603,7 @@
      }
     },
     {
-     "id": "r-117",
+     "id": "r-116",
      "type": "room",
      "name": "Attached Bath 4",
      "roomType": "bathroom",
@@ -3688,7 +3655,7 @@
      }
     },
     {
-     "id": "r-118",
+     "id": "r-117",
      "type": "room",
      "name": "Bedroom 3",
      "roomType": "bedroom",
@@ -3740,7 +3707,7 @@
      }
     },
     {
-     "id": "r-119",
+     "id": "r-118",
      "type": "room",
      "name": "Lobby",
      "roomType": "other",
@@ -3792,7 +3759,7 @@
      }
     },
     {
-     "id": "r-120",
+     "id": "r-119",
      "type": "room",
      "name": "Bedroom 4",
      "roomType": "bedroom",
@@ -3844,7 +3811,7 @@
      }
     },
     {
-     "id": "r-121",
+     "id": "r-120",
      "type": "room",
      "name": "Open Terrace",
      "roomType": "balcony",
@@ -3896,7 +3863,7 @@
      }
     },
     {
-     "id": "w-92",
+     "id": "w-91",
      "type": "wall",
      "name": "Wall",
      "start": {
@@ -3938,7 +3905,7 @@
      }
     },
     {
-     "id": "w-93",
+     "id": "w-92",
      "type": "wall",
      "name": "Wall",
      "start": {
@@ -3980,7 +3947,7 @@
      }
     },
     {
-     "id": "w-94",
+     "id": "w-93",
      "type": "wall",
      "name": "Wall",
      "start": {
@@ -4022,7 +3989,7 @@
      }
     },
     {
-     "id": "w-95",
+     "id": "w-94",
      "type": "wall",
      "name": "Wall",
      "start": {
@@ -4064,7 +4031,7 @@
      }
     },
     {
-     "id": "w-96",
+     "id": "w-95",
      "type": "wall",
      "name": "Wall",
      "start": {
@@ -4106,7 +4073,7 @@
      }
     },
     {
-     "id": "w-97",
+     "id": "w-96",
      "type": "wall",
      "name": "Wall",
      "start": {
@@ -4120,6 +4087,48 @@
      "transform": {
       "position": {
        "x": 3.8207,
+       "y": 1.2192,
+       "z": 0
+      },
+      "rotation": 1.5707963267948966,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 2.4384,
+      "height": 3.05,
+      "depth": 0.1143,
+      "thickness": 0.1143
+     },
+     "material": {
+      "id": "plaster-white",
+      "name": "Plaster · White",
+      "color": "#ece8df",
+      "finish": "matte",
+      "roughness": 0.95,
+      "metalness": 0,
+      "texture": "plaster",
+      "textureScale": 2.5
+     }
+    },
+    {
+     "id": "w-97",
+     "type": "wall",
+     "name": "Wall",
+     "start": {
+      "x": 5.6495,
+      "y": 0
+     },
+     "end": {
+      "x": 5.6495,
+      "y": 2.4384
+     },
+     "transform": {
+      "position": {
+       "x": 5.6495,
        "y": 1.2192,
        "z": 0
       },
@@ -4152,48 +4161,6 @@
      "type": "wall",
      "name": "Wall",
      "start": {
-      "x": 5.6495,
-      "y": 0
-     },
-     "end": {
-      "x": 5.6495,
-      "y": 2.4384
-     },
-     "transform": {
-      "position": {
-       "x": 5.6495,
-       "y": 1.2192,
-       "z": 0
-      },
-      "rotation": 1.5707963267948966,
-      "scale": {
-       "x": 1,
-       "y": 1,
-       "z": 1
-      }
-     },
-     "dimensions": {
-      "width": 2.4384,
-      "height": 3.05,
-      "depth": 0.1143,
-      "thickness": 0.1143
-     },
-     "material": {
-      "id": "plaster-white",
-      "name": "Plaster · White",
-      "color": "#ece8df",
-      "finish": "matte",
-      "roughness": 0.95,
-      "metalness": 0,
-      "texture": "plaster",
-      "textureScale": 2.5
-     }
-    },
-    {
-     "id": "w-99",
-     "type": "wall",
-     "name": "Wall",
-     "start": {
       "x": 3.8207,
       "y": 2.4384
      },
@@ -4232,7 +4199,7 @@
      }
     },
     {
-     "id": "w-100",
+     "id": "w-99",
      "type": "wall",
      "name": "Wall",
      "start": {
@@ -4274,10 +4241,10 @@
      }
     },
     {
-     "id": "d-101",
+     "id": "d-100",
      "type": "door",
      "name": "Door",
-     "wallId": "w-94",
+     "wallId": "w-93",
      "offset": 4.7351,
      "sillHeight": 0,
      "style": "single",
@@ -4310,10 +4277,10 @@
      }
     },
     {
-     "id": "d-102",
+     "id": "d-101",
      "type": "door",
      "name": "Door",
-     "wallId": "w-99",
+     "wallId": "w-98",
      "offset": 5.1816,
      "sillHeight": 0,
      "style": "single",
@@ -4346,10 +4313,10 @@
      }
     },
     {
-     "id": "d-103",
+     "id": "d-102",
      "type": "door",
      "name": "Door",
-     "wallId": "w-100",
+     "wallId": "w-99",
      "offset": 5.1816,
      "sillHeight": 0,
      "style": "single",
@@ -4382,10 +4349,10 @@
      }
     },
     {
-     "id": "d-104",
+     "id": "d-103",
      "type": "door",
      "name": "Door",
-     "wallId": "w-96",
+     "wallId": "w-95",
      "offset": 3.2918,
      "sillHeight": 0,
      "style": "single",
@@ -4418,10 +4385,10 @@
      }
     },
     {
-     "id": "d-105",
+     "id": "d-104",
      "type": "door",
      "name": "Door",
-     "wallId": "w-96",
+     "wallId": "w-95",
      "offset": 6.1874,
      "sillHeight": 0,
      "style": "single",
@@ -4454,10 +4421,10 @@
      }
     },
     {
-     "id": "d-106",
+     "id": "d-105",
      "type": "door",
      "name": "Door",
-     "wallId": "w-96",
+     "wallId": "w-95",
      "offset": 4.7351,
      "sillHeight": 0,
      "style": "single",
@@ -4490,11 +4457,47 @@
      }
     },
     {
+     "id": "n-106",
+     "type": "window",
+     "name": "Window",
+     "wallId": "w-91",
+     "offset": 1.8288,
+     "sillHeight": 0.9,
+     "style": "fixed",
+     "mullions": 1,
+     "transform": {
+      "position": {
+       "x": 0,
+       "y": 0,
+       "z": 0
+      },
+      "rotation": 0,
+      "scale": {
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     },
+     "dimensions": {
+      "width": 1.2192,
+      "height": 1.35,
+      "depth": 0.2286
+     },
+     "material": {
+      "id": "glass",
+      "name": "Glass",
+      "color": "#aac9dd",
+      "finish": "glossy",
+      "roughness": 0.08,
+      "metalness": 0.1
+     }
+    },
+    {
      "id": "n-107",
      "type": "window",
      "name": "Window",
-     "wallId": "w-92",
-     "offset": 1.8288,
+     "wallId": "w-91",
+     "offset": 7.62,
      "sillHeight": 0.9,
      "style": "fixed",
      "mullions": 1,
@@ -4530,7 +4533,7 @@
      "type": "window",
      "name": "Window",
      "wallId": "w-92",
-     "offset": 7.62,
+     "offset": 4.2672,
      "sillHeight": 0.9,
      "style": "fixed",
      "mullions": 1,
@@ -4565,8 +4568,8 @@
      "id": "n-109",
      "type": "window",
      "name": "Window",
-     "wallId": "w-93",
-     "offset": 4.2672,
+     "wallId": "w-92",
+     "offset": 6.7056,
      "sillHeight": 0.9,
      "style": "fixed",
      "mullions": 1,
@@ -4601,8 +4604,8 @@
      "id": "n-110",
      "type": "window",
      "name": "Window",
-     "wallId": "w-93",
-     "offset": 6.7056,
+     "wallId": "w-94",
+     "offset": 4.2672,
      "sillHeight": 0.9,
      "style": "fixed",
      "mullions": 1,
@@ -4637,8 +4640,8 @@
      "id": "n-111",
      "type": "window",
      "name": "Window",
-     "wallId": "w-95",
-     "offset": 4.2672,
+     "wallId": "w-94",
+     "offset": 1.8288,
      "sillHeight": 0.9,
      "style": "fixed",
      "mullions": 1,
@@ -4673,43 +4676,7 @@
      "id": "n-112",
      "type": "window",
      "name": "Window",
-     "wallId": "w-95",
-     "offset": 1.8288,
-     "sillHeight": 0.9,
-     "style": "fixed",
-     "mullions": 1,
-     "transform": {
-      "position": {
-       "x": 0,
-       "y": 0,
-       "z": 0
-      },
-      "rotation": 0,
-      "scale": {
-       "x": 1,
-       "y": 1,
-       "z": 1
-      }
-     },
-     "dimensions": {
-      "width": 1.2192,
-      "height": 1.35,
-      "depth": 0.2286
-     },
-     "material": {
-      "id": "glass",
-      "name": "Glass",
-      "color": "#aac9dd",
-      "finish": "glossy",
-      "roughness": 0.08,
-      "metalness": 0.1
-     }
-    },
-    {
-     "id": "n-113",
-     "type": "window",
-     "name": "Window",
-     "wallId": "w-94",
+     "wallId": "w-93",
      "offset": 7.6413,
      "sillHeight": 0.9,
      "style": "fixed",
@@ -4742,10 +4709,10 @@
      }
     },
     {
-     "id": "n-114",
+     "id": "n-113",
      "type": "window",
      "name": "Window",
-     "wallId": "w-94",
+     "wallId": "w-93",
      "offset": 1.8501,
      "sillHeight": 0.9,
      "style": "fixed",
@@ -4778,7 +4745,7 @@
      }
     },
     {
-     "id": "f-122",
+     "id": "f-121",
      "type": "furniture",
      "name": "Queen Bed",
      "catalogId": "bed-queen",
@@ -4811,7 +4778,7 @@
      "meta": {}
     },
     {
-     "id": "f-123",
+     "id": "f-122",
      "type": "furniture",
      "name": "Queen Bed",
      "catalogId": "bed-queen",
@@ -4844,7 +4811,7 @@
      "meta": {}
     },
     {
-     "id": "f-124",
+     "id": "f-123",
      "type": "furniture",
      "name": "Wardrobe · 3 Door",
      "catalogId": "wardrobe-3",
@@ -4877,7 +4844,7 @@
      "meta": {}
     },
     {
-     "id": "f-125",
+     "id": "f-124",
      "type": "furniture",
      "name": "Wardrobe · 3 Door",
      "catalogId": "wardrobe-3",
@@ -4910,7 +4877,7 @@
      "meta": {}
     },
     {
-     "id": "f-126",
+     "id": "f-125",
      "type": "furniture",
      "name": "Toilet (WC)",
      "catalogId": "toilet",
@@ -4943,7 +4910,7 @@
      "meta": {}
     },
     {
-     "id": "f-127",
+     "id": "f-126",
      "type": "furniture",
      "name": "Washbasin",
      "catalogId": "washbasin",
@@ -4976,7 +4943,7 @@
      "meta": {}
     },
     {
-     "id": "f-128",
+     "id": "f-127",
      "type": "furniture",
      "name": "Shower",
      "catalogId": "shower",
@@ -5009,7 +4976,7 @@
      "meta": {}
     },
     {
-     "id": "f-129",
+     "id": "f-128",
      "type": "furniture",
      "name": "Toilet (WC)",
      "catalogId": "toilet",
@@ -5042,7 +5009,7 @@
      "meta": {}
     },
     {
-     "id": "f-130",
+     "id": "f-129",
      "type": "furniture",
      "name": "Washbasin",
      "catalogId": "washbasin",
@@ -5075,7 +5042,7 @@
      "meta": {}
     },
     {
-     "id": "f-131",
+     "id": "f-130",
      "type": "furniture",
      "name": "Shower",
      "catalogId": "shower",
@@ -5108,7 +5075,7 @@
      "meta": {}
     },
     {
-     "id": "f-132",
+     "id": "f-131",
      "type": "furniture",
      "name": "Planter · Long",
      "catalogId": "planter-long",
@@ -5141,7 +5108,7 @@
      "meta": {}
     },
     {
-     "id": "f-133",
+     "id": "f-132",
      "type": "furniture",
      "name": "Planter · Long",
      "catalogId": "planter-long",
@@ -5174,40 +5141,7 @@
      "meta": {}
     },
     {
-     "id": "f-134",
-     "type": "furniture",
-     "name": "Outdoor Table Set",
-     "catalogId": "outdoor-set",
-     "transform": {
-      "position": {
-       "x": 4.7244,
-       "y": 13.4112,
-       "z": 0
-      },
-      "rotation": 0,
-      "scale": {
-       "x": 1,
-       "y": 1,
-       "z": 1
-      }
-     },
-     "dimensions": {
-      "width": 1.7,
-      "height": 0.75,
-      "depth": 1.7
-     },
-     "material": {
-      "id": "wood-teak",
-      "name": "Outdoor Table Set",
-      "color": "#a8754a",
-      "finish": "matte",
-      "roughness": 0.9,
-      "metalness": 0
-     },
-     "meta": {}
-    },
-    {
-     "id": "f-135",
+     "id": "f-133",
      "type": "furniture",
      "name": "Wood Slat Screen",
      "catalogId": "slat-screen",
@@ -5240,7 +5174,7 @@
      "meta": {}
     },
     {
-     "id": "rf-91",
+     "id": "rf-90",
      "type": "roof",
      "name": "Roof Slab",
      "roofStyle": "flat",

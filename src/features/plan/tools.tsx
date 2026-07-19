@@ -682,8 +682,16 @@ export function usePlanTools(viewport: Viewport): PlanToolsApi {
         }
         const s = snap(world);
         pushHistory();
-        addElement(makeFurniture(activeCatalogId, s.point));
+        const placed = makeFurniture(activeCatalogId, s.point);
+        addElement(placed);
         pushRecent(activeCatalogId);
+        // CAD placement flow: place once, return to Select — hold Shift to
+        // keep placing copies.
+        if (!e.evt.shiftKey) {
+          useUiStore.getState().setActiveCatalogId(null);
+          setTool('select');
+          setSelection([placed.id]);
+        }
         break;
       }
     }

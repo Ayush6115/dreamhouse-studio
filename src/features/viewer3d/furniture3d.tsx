@@ -68,7 +68,6 @@ function Cyl({
   );
 }
 
-const WOOD: Mat = { color: '#8a6845', roughness: 0.7 };
 const DARK: Mat = { color: '#3a3d42', roughness: 0.6 };
 const WHITE: Mat = { color: '#eceae4', roughness: 0.4 };
 
@@ -76,14 +75,108 @@ export function FurnitureModel({ kind, w, d, h, color, roughness, metalness }: M
   const m: Mat = { color, roughness, metalness };
 
   switch (kind) {
-    case 'bed':
+    case 'bed': {
+      // Modern platform bed: floating base, thick mattress, upholstered
+      // headboard, duvet with a folded end and throw band.
+      const duvet: Mat = { color: '#e8e4dc', roughness: 0.95 };
       return (
         <group>
-          <B p={[0, 0.11, 0]} s={[w, 0.22, d]} m={WOOD} />
-          <B p={[0, 0.31, 0]} s={[w - 0.08, 0.18, d - 0.08]} m={m} />
-          <B p={[0, 0.28 + (h - 0.4) / 2, -d / 2 + 0.04]} s={[w, h - 0.4, 0.08]} m={WOOD} />
-          <B p={[-w / 4 + 0.02, 0.44, -d / 2 + 0.28]} s={[w / 2 - 0.16, 0.09, 0.36]} m={WHITE} />
-          {w > 1.2 && <B p={[w / 4 - 0.02, 0.44, -d / 2 + 0.28]} s={[w / 2 - 0.16, 0.09, 0.36]} m={WHITE} />}
+          <B p={[0, 0.14, 0.03]} s={[w - 0.06, 0.12, d - 0.05]} m={{ color: '#4a4139', roughness: 0.7 }} />
+          <B p={[0, 0.26, 0.03]} s={[w, 0.16, d]} m={{ color: '#d9d5cc', roughness: 0.9 }} />
+          {/* upholstered headboard */}
+          <B p={[0, h / 2 + 0.12, -d / 2 + 0.035]} s={[w + 0.08, h + 0.24, 0.07]} m={m} />
+          {/* duvet covering the lower 2/3, slightly proud */}
+          <B p={[0, 0.36, d * 0.14 + 0.015]} s={[w + 0.02, 0.09, d * 0.72]} m={duvet} />
+          <B p={[0, 0.36, d / 2 - 0.1]} s={[w + 0.02, 0.1, 0.2]} m={duvet} />
+          {/* throw band at the foot */}
+          <B p={[0, 0.415, d / 2 - 0.32]} s={[w + 0.03, 0.02, 0.34]} m={{ color: '#8d7a63', roughness: 1 }} />
+          {/* pillows */}
+          <B p={[-w / 4 + 0.02, 0.47, -d / 2 + 0.3]} s={[w / 2 - 0.14, 0.12, 0.42]} m={WHITE} />
+          {w > 1.2 && <B p={[w / 4 - 0.02, 0.47, -d / 2 + 0.3]} s={[w / 2 - 0.14, 0.12, 0.42]} m={WHITE} />}
+        </group>
+      );
+    }
+    case 'bunk': {
+      const rail: Mat = { color: m.color, roughness: 0.7 };
+      return (
+        <group>
+          {[0.28, h - 0.42].map((y, i) => (
+            <group key={i}>
+              <B p={[0, y, 0]} s={[w, 0.1, d]} m={rail} />
+              <B p={[0, y + 0.11, 0]} s={[w - 0.06, 0.12, d - 0.06]} m={{ color: '#d9d5cc', roughness: 0.9 }} />
+              <B p={[0, y + 0.22, -d / 2 + 0.22]} s={[w - 0.12, 0.08, 0.34]} m={WHITE} />
+            </group>
+          ))}
+          {/* posts + upper guard rail + ladder */}
+          {([-1, 1] as const).flatMap((sx) =>
+            ([-1, 1] as const).map((sz) => (
+              <B key={`${sx}${sz}`} p={[sx * (w / 2 - 0.03), h / 2, sz * (d / 2 - 0.03)]} s={[0.06, h, 0.06]} m={rail} />
+            )),
+          )}
+          <B p={[0, h - 0.18, d / 2 - 0.02]} s={[w, 0.04, 0.04]} m={rail} />
+          {[0.35, 0.7, 1.05, 1.4].map((y) => (
+            <B key={y} p={[w / 2 - 0.01, y, d / 2 + 0.12]} s={[0.04, 0.04, 0.3]} m={rail} />
+          ))}
+          <B p={[w / 2 - 0.01, h * 0.52, d / 2 + 0.26]} s={[0.04, h, 0.04]} m={rail} />
+        </group>
+      );
+    }
+    case 'office-chair': {
+      const dark: Mat = { color: '#33353a', roughness: 0.6 };
+      return (
+        <group>
+          {Array.from({ length: 5 }, (_, i) => {
+            const a = (i * Math.PI * 2) / 5;
+            return (
+              <B key={i} p={[Math.cos(a) * w * 0.28, 0.04, Math.sin(a) * w * 0.28]} s={[w * 0.34, 0.04, 0.05]} m={dark} />
+            );
+          })}
+          <Cyl p={[0, 0.25, 0]} r={0.025} h={0.4} m={{ color: '#8f959b', roughness: 0.3, metalness: 0.9 }} />
+          <B p={[0, 0.48, 0.02]} s={[w * 0.8, 0.07, d * 0.78]} m={m} />
+          <B p={[0, 0.75, -d / 2 + 0.07]} s={[w * 0.72, h * 0.55, 0.07]} m={m} />
+        </group>
+      );
+    }
+    case 'tv-flat':
+      return (
+        <group>
+          <B p={[0, h / 2, 0]} s={[w, h, 0.035]} m={{ color: '#141518', roughness: 0.35 }} />
+          <B p={[0, h / 2, 0.008]} s={[w - 0.04, h - 0.04, 0.03]} m={{ color: '#0a0b0d', roughness: 0.1, metalness: 0.3 }} />
+        </group>
+      );
+    case 'oven':
+    case 'dishwasher':
+    case 'microwave': {
+      const face: Mat = kind === 'dishwasher' ? { color: '#9aa1a8', roughness: 0.35, metalness: 0.8 } : { color: '#2b2d31', roughness: 0.4, metalness: 0.5 };
+      return (
+        <group>
+          <B p={[0, h / 2, 0]} s={[w, h, d]} m={m} />
+          <B p={[0, h / 2, d / 2 - 0.008]} s={[w - 0.04, h - 0.05, 0.02]} m={face} />
+          {kind !== 'dishwasher' && (
+            <B p={[0, h * 0.55, d / 2 + 0.001]} s={[w * 0.72, h * 0.5, 0.015]} m={{ color: '#101113', roughness: 0.15 }} />
+          )}
+          {/* handle bar */}
+          <B p={[0, kind === 'dishwasher' ? h - 0.07 : h * 0.86, d / 2 + 0.03]} s={[w * 0.8, 0.025, 0.025]} m={{ color: '#b8bcc0', roughness: 0.3, metalness: 0.9 }} />
+        </group>
+      );
+    }
+    case 'hood':
+      return (
+        <group>
+          {/* canopy tapering to a chimney */}
+          <B p={[0, 0.05, 0]} s={[w, 0.1, d]} m={{ color: '#9aa1a8', roughness: 0.35, metalness: 0.8 }} />
+          <B p={[0, 0.18, -d * 0.1]} s={[w * 0.6, 0.16, d * 0.55]} m={{ color: '#9aa1a8', roughness: 0.35, metalness: 0.8 }} />
+          <B p={[0, h * 0.66, -d * 0.1]} s={[w * 0.28, h * 0.68, d * 0.35]} m={{ color: '#a8adb2', roughness: 0.4, metalness: 0.7 }} />
+        </group>
+      );
+    case 'vanity':
+      return (
+        <group>
+          <B p={[0, (h - 0.12) / 2, 0]} s={[w, h - 0.12, d]} m={m} />
+          <B p={[0, h - 0.05, 0]} s={[w + 0.03, 0.05, d + 0.02]} m={{ color: '#e8e4da', roughness: 0.25 }} />
+          <Cyl p={[0, h + 0.03, 0.02]} r={Math.min(w, d) * 0.22} h={0.1} m={{ color: '#f2efe8', roughness: 0.2 }} />
+          <B p={[0, h + 0.1, -d / 2 + 0.05]} s={[0.05, 0.16, 0.05]} m={{ color: '#8f959b', roughness: 0.3, metalness: 0.9 }} />
+          <B p={[0, (h - 0.12) / 2, d / 2 + 0.005]} s={[w - 0.05, h - 0.2, 0.012]} m={{ color: '#6b5a45', roughness: 0.6 }} />
         </group>
       );
     case 'sofa':
@@ -143,13 +236,31 @@ export function FurnitureModel({ kind, w, d, h, color, roughness, metalness }: M
           ))}
         </group>
       );
-    case 'wardrobe':
+    case 'wardrobe': {
+      // Modern sliding wardrobe: carcass, door panels with reveals, handles,
+      // recessed plinth.
+      const doors = Math.max(2, Math.round(w / 0.6));
+      const dw = (w - 0.04) / doors;
       return (
         <group>
-          <B p={[0, h / 2, 0]} s={[w, h, d]} m={m} />
-          <B p={[0, h / 2, d / 2 + 0.006]} s={[0.02, h - 0.1, 0.012]} m={DARK} />
+          <B p={[0, 0.04, 0]} s={[w - 0.1, 0.08, d - 0.08]} m={DARK} />
+          <B p={[0, h / 2 + 0.04, 0]} s={[w, h - 0.08, d]} m={m} />
+          {Array.from({ length: doors }, (_, i) => {
+            const x = -w / 2 + 0.02 + dw * (i + 0.5);
+            return (
+              <group key={i}>
+                <B
+                  p={[x, h / 2 + 0.04, d / 2 + 0.008]}
+                  s={[dw - 0.015, h - 0.12, 0.014]}
+                  m={{ color: i % 2 ? '#efece5' : m.color, roughness: 0.55 }}
+                />
+                <B p={[x + (i % 2 ? -1 : 1) * (dw / 2 - 0.05), h / 2 + 0.04, d / 2 + 0.024]} s={[0.02, 0.5, 0.02]} m={{ color: '#8f959b', roughness: 0.3, metalness: 0.9 }} />
+              </group>
+            );
+          })}
         </group>
       );
+    }
     case 'tv-unit':
       return (
         <group>
@@ -390,6 +501,89 @@ export function FurnitureModel({ kind, w, d, h, color, roughness, metalness }: M
               <sphereGeometry args={[Math.min(d, w / shrubs) * 0.42, 12, 10]} />
               <meshStandardMaterial color={i % 2 ? '#5c8a4c' : '#6d9c58'} roughness={1} />
             </mesh>
+          ))}
+        </group>
+      );
+    }
+    case 'car-sedan':
+    case 'car-suv':
+    case 'car-hatch': {
+      // Clean massing model: body, cabin greenhouse, wheels, glass, lights.
+      const suv = kind === 'car-suv';
+      const hatch = kind === 'car-hatch';
+      const bodyH = suv ? h * 0.45 : h * 0.42;
+      const cabinH = h - bodyH;
+      const cabinD = d * (hatch ? 0.5 : 0.45);
+      const cabinZ = hatch ? d * 0.1 : suv ? d * 0.05 : 0;
+      const wheelR = h * (suv ? 0.24 : 0.22);
+      const paint: Mat = { color: m.color, roughness: 0.25, metalness: 0.6 };
+      const glass: Mat = { color: '#1d2a33', roughness: 0.1, metalness: 0.4 };
+      return (
+        <group>
+          <B p={[0, wheelR + bodyH / 2 - 0.05, 0]} s={[w, bodyH, d]} m={paint} />
+          {/* cabin */}
+          <B p={[0, wheelR + bodyH + cabinH / 2 - 0.08, cabinZ]} s={[w - 0.18, cabinH, cabinD]} m={paint} />
+          <B p={[0, wheelR + bodyH + cabinH / 2 - 0.08, cabinZ]} s={[w - 0.24, cabinH - 0.08, cabinD + 0.02]} m={glass} />
+          {/* wheels */}
+          {([-1, 1] as const).flatMap((sx) =>
+            ([-1, 1] as const).map((sz) => (
+              <mesh
+                key={`${sx}${sz}`}
+                position={[sx * (w / 2 - 0.06), wheelR, sz * (d / 2 - d * 0.22)]}
+                rotation={[0, 0, Math.PI / 2]}
+                castShadow
+              >
+                <cylinderGeometry args={[wheelR, wheelR, 0.16, 18]} />
+                <meshStandardMaterial color="#17181a" roughness={0.9} />
+              </mesh>
+            )),
+          )}
+          {/* lights */}
+          <B p={[-w * 0.3, wheelR + bodyH * 0.55, -d / 2 - 0.005]} s={[w * 0.2, 0.07, 0.02]} m={{ color: '#e8ecef', roughness: 0.2 }} />
+          <B p={[w * 0.3, wheelR + bodyH * 0.55, -d / 2 - 0.005]} s={[w * 0.2, 0.07, 0.02]} m={{ color: '#e8ecef', roughness: 0.2 }} />
+          <B p={[-w * 0.3, wheelR + bodyH * 0.55, d / 2 + 0.005]} s={[w * 0.2, 0.06, 0.02]} m={{ color: '#a33227', roughness: 0.3 }} />
+          <B p={[w * 0.3, wheelR + bodyH * 0.55, d / 2 + 0.005]} s={[w * 0.2, 0.06, 0.02]} m={{ color: '#a33227', roughness: 0.3 }} />
+        </group>
+      );
+    }
+    case 'bike': {
+      const wheelR = d * 0.22;
+      const frame: Mat = { color: m.color, roughness: 0.4, metalness: 0.7 };
+      const wheel = (z: number) => (
+        <mesh position={[0, wheelR, z]} rotation={[0, 0, Math.PI / 2]} castShadow>
+          <torusGeometry args={[wheelR, 0.02, 8, 24]} />
+          <meshStandardMaterial color="#1c1d1f" roughness={0.8} />
+        </mesh>
+      );
+      return (
+        <group>
+          {wheel(-d / 2 + wheelR)}
+          {wheel(d / 2 - wheelR)}
+          <B p={[0, wheelR * 1.7, 0]} s={[0.035, 0.035, d * 0.52]} m={frame} />
+          <B p={[0, wheelR * 1.15, -d * 0.12]} s={[0.03, wheelR * 1.4, 0.03]} m={frame} />
+          <B p={[0, h - 0.12, -d / 2 + wheelR]} s={[w, 0.03, 0.03]} m={frame} />
+          <B p={[0, h - 0.18, d * 0.16]} s={[0.25, 0.04, 0.08]} m={{ color: '#2a2b2e', roughness: 0.8 }} />
+        </group>
+      );
+    }
+    case 'pergola': {
+      const post: Mat = { color: m.color, roughness: 0.7 };
+      const p: { x: number; z: number }[] = [
+        { x: -w / 2 + 0.08, z: -d / 2 + 0.08 },
+        { x: w / 2 - 0.08, z: -d / 2 + 0.08 },
+        { x: -w / 2 + 0.08, z: d / 2 - 0.08 },
+        { x: w / 2 - 0.08, z: d / 2 - 0.08 },
+      ];
+      const slats = Math.max(5, Math.round(w / 0.35));
+      return (
+        <group>
+          {p.map((q, i) => (
+            <B key={i} p={[q.x, (h - 0.15) / 2, q.z]} s={[0.14, h - 0.15, 0.14]} m={post} />
+          ))}
+          <B p={[0, h - 0.12, -d / 2 + 0.08]} s={[w, 0.14, 0.1]} m={post} />
+          <B p={[0, h - 0.12, d / 2 - 0.08]} s={[w, 0.14, 0.1]} m={post} />
+          {Array.from({ length: slats }, (_, i) => (
+            <B key={`s${i}`} p={[-w / 2 + (w * (i + 0.5)) / slats, h - 0.03, 0]} s={[0.06, 0.1, d]} m={post} />
           ))}
         </group>
       );

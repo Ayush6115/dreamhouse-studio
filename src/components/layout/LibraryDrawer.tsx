@@ -26,7 +26,8 @@ import {
 } from 'lucide-react';
 import { useDesignStore } from '../../store/designStore';
 import { useUiStore } from '../../store/uiStore';
-import { CATALOG, CATALOG_CATEGORIES, type CatalogItem } from '../../library/catalog';
+import { CATALOG, type CatalogItem, type Symbol2D } from '../../library/catalog';
+import { symbolBlockSVG } from '../../library/symbolBlocks';
 import { FACADE_CATALOG, FACADE_CATEGORIES, type FacadeCatalogItem } from '../../library/facadeCatalog';
 import { formatLength } from '../../geometry/units';
 
@@ -34,6 +35,25 @@ import { formatLength } from '../../geometry/units';
  * Component store: searchable, with favorites and recently-used sections.
  * Shows the interior catalog in plan view, the façade catalog in elevation.
  */
+
+/**
+ * LOD0 thumbnail: the item's actual plan block, generated from the shared
+ * symbol library — the icon in the store IS the symbol that will be placed.
+ */
+function BlockThumb({ symbol, w, d }: { symbol: Symbol2D; w: number; d: number }) {
+  const svg = useMemo(() => {
+    const span = Math.max(w, d);
+    const markup = symbolBlockSVG(symbol, w, d, {
+      stroke: 'currentColor',
+      thin: span * 0.022,
+      thick: span * 0.034,
+      body: 'transparent',
+    });
+    const m = span * 0.09;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-w / 2 - m} ${-d / 2 - m} ${w + 2 * m} ${d + 2 * m}" width="34" height="34">${markup}</svg>`;
+  }, [symbol, w, d]);
+  return <span dangerouslySetInnerHTML={{ __html: svg }} />;
+}
 
 const SYMBOL_ICONS: Record<string, ReactNode> = {
   bed: <BedDouble size={22} />,
@@ -102,10 +122,15 @@ export function LibraryDrawer() {
   const favorites = useUiStore((s) => s.favorites);
   const recents = useUiStore((s) => s.recents);
   const toggleFavorite = useUiStore((s) => s.toggleFavorite);
+  const catalogVersion = useUiStore((s) => s.catalogVersion);
 
   const isElevation = viewMode === 'elevation';
   const all: AnyItem[] = isElevation ? FACADE_CATALOG : CATALOG;
-  const baseCategories = isElevation ? FACADE_CATEGORIES : CATALOG_CATEGORIES;
+  // recomputed live so imported assets appear without a reload
+  const baseCategories = useMemo(
+    () => (isElevation ? FACADE_CATEGORIES : [...new Set(CATALOG.map((i) => i.category))]),
+    [isElevation, catalogVersion], // eslint-disable-line react-hooks/exhaustive-deps -- version IS the CATALOG dep
+  );
 
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string | null>(null);
@@ -223,7 +248,11 @@ export function LibraryDrawer() {
                 title={`${item.name} — click, then click the canvas to place`}
               >
                 <span className={`flex h-10 w-10 items-center justify-center rounded-md ${active ? 'text-accent' : 'text-ink-dim'}`}>
-                  {SYMBOL_ICONS[item.symbol] ?? <Box size={22} />}
+                  {!isElevation && 'depth' in item ? (
+                    <BlockThumb symbol={item.symbol as Symbol2D} w={item.width} d={item.depth} />
+                  ) : (
+                    SYMBOL_ICONS[item.symbol] ?? <Box size={22} />
+                  )}
                 </span>
                 <span className="text-[11px] leading-tight text-ink">{item.name}</span>
                 <span className="text-[10px] tabular-nums text-ink-faint">

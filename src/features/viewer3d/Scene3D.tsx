@@ -13,6 +13,7 @@ import { add, norm, scale as vscale, sub } from '../../geometry/vec';
 import { wallThickness, wallsUnionOutlines } from '../../geometry/walls';
 import { catalogItemById } from '../../library/catalog';
 import { materialById } from '../../library/materials';
+import { solveStairElement } from '../../engine/stair';
 import { trimPiecesToRoofs, wallPieces } from './geometry3d';
 import { FurnitureModel } from './furniture3d';
 import { GltfModel } from './GltfModel';
@@ -85,12 +86,14 @@ function Wall3D({
   openings,
   roofs,
   baseY,
+  cutHeight,
 }: {
   wall: WallElement;
   walls: WallElement[];
   openings: OpeningElement[];
   roofs: RoofElement[];
   baseY: number;
+  cutHeight?: number;
 }) {
   const selected = useDesignStore((s) => s.selectedIds.includes(wall.id));
   const setSelection = useDesignStore((s) => s.setSelection);
@@ -98,7 +101,11 @@ function Wall3D({
   // All pieces (opening splits + roof-trim strips) merge into ONE geometry:
   // one draw call per wall, and exports stay lean.
   const geometry = useMemo(() => {
-    const pieces = trimPiecesToRoofs(wallPieces(wall, walls, openings), wall, roofs);
+    let pieces = trimPiecesToRoofs(wallPieces(wall, walls, openings), wall, roofs);
+    if (cutHeight !== undefined) {
+      // dollhouse cutaway: slice everything above the cut plane
+      pieces = pieces.map((p) => ({ ...p, z1: Math.min(p.z1, cutHeight) }));
+    }
     const geos = pieces
       .filter((p) => p.poly.length >= 3 && p.z1 - p.z0 > 1e-4)
       .map((p) => {
@@ -113,7 +120,7 @@ function Wall3D({
     const merged = mergeGeometries(geos, false);
     geos.forEach((g) => g.dispose());
     return merged;
-  }, [wall, walls, openings, roofs]);
+  }, [wall, walls, openings, roofs, cutHeight]);
 
   useEffect(() => () => geometry?.dispose(), [geometry]);
 
@@ -175,11 +182,13 @@ function Opening3D({
   host,
   baseY,
   outward = 1,
+  cutHeight,
 }: {
   opening: OpeningElement;
   host: WallElement;
   baseY: number;
   outward?: 1 | -1;
+  cutHeight?: number;
 }) {
   const setSelection = useDesignStore((s) => s.setSelection);
   const selected = useDesignStore((s) => s.selectedIds.includes(opening.id));
@@ -187,12 +196,17 @@ function Opening3D({
   const center = add(host.start, vscale(dir, opening.offset));
   const angle = Math.atan2(dir.y, dir.x);
   const w = opening.dimensions.width;
-  const h = opening.dimensions.height;
+  // dollhouse cutaway: clip the joinery to the sliced wall height
+  const h =
+    cutHeight !== undefined
+      ? Math.min(opening.dimensions.height, Math.max(0.12, cutHeight - opening.sillHeight - 0.02))
+      : opening.dimensions.height;
   const th = wallThickness(host);
   const leafDark = useMemo(
     () => `#${new THREE.Color(opening.material.color).multiplyScalar(0.72).getHexString()}`,
     [opening.material.color],
   );
+  if (cutHeight !== undefined && opening.sillHeight > cutHeight - 0.15) return null;
 
   /** Paneled leaf with handle — the flat slab read as a toy before. */
   const leaf = (lw: number, x: number, z: number, handleSide: 1 | -1) => (
@@ -251,6 +265,24 @@ function Opening3D({
               {leaf(w * 0.46, -(w * 0.235 + 0.005), 0, 1)}
               {leaf(w * 0.46, w * 0.235 + 0.005, 0, -1)}
             </>
+          ) : opening.style === 'folding' ? (
+            <>
+              {/* bi-fold pairs, part-open */}
+              {([-1, 1] as const).flatMap((side) =>
+                ([0, 1] as const).map((k) => (
+                  <group
+                    key={`${side}${k}`}
+                    position={[side * (w / 4 + (k === 0 ? -w / 8 : w / 8)), 0, 0]}
+                    rotation={[0, (k === 0 ? 1 : -1) * side * 0.5, 0]}
+                  >
+                    <mesh position={[0, h / 2, 0]} castShadow>
+                      <boxGeometry args={[w / 4, h * 0.97, 0.04]} />
+                      <ElementMaterial material={opening.material} selected={selected} />
+                    </mesh>
+                  </group>
+                )),
+              )}
+            </>
           ) : opening.style === 'sliding' ? (
             <>
               {/* glazed sliding panels */}
@@ -283,7 +315,9 @@ function Opening3D({
             <boxGeometry args={[w + 0.1, 0.024, th + 0.1]} />
             <meshStandardMaterial color={CONCRETE_TRIM} roughness={0.95} />
           </mesh>
-          <ShadeAndSill w={w} topY={h + 0.07} sillY={0} th={th} outward={outward} withSill={false} />
+          {cutHeight === undefined && (
+            <ShadeAndSill w={w} topY={h + 0.07} sillY={0} th={th} outward={outward} withSill={false} />
+          )}
         </>
       ) : (
         <>
@@ -334,14 +368,16 @@ function Opening3D({
             <boxGeometry args={[w - 0.05, 0.035, Math.min(th * 0.45, 0.06)]} />
             <meshStandardMaterial color={FRAME_DARK} roughness={0.45} metalness={0.4} />
           </mesh>
-          <ShadeAndSill
-            w={w}
-            topY={opening.sillHeight + h}
-            sillY={opening.sillHeight}
-            th={th}
-            outward={outward}
-            withSill
-          />
+          {cutHeight === undefined && (
+            <ShadeAndSill
+              w={w}
+              topY={opening.sillHeight + h}
+              sillY={opening.sillHeight}
+              th={th}
+              outward={outward}
+              withSill
+            />
+          )}
         </>
       )}
     </group>
@@ -367,7 +403,7 @@ function Room3D({ room, baseY }: { room: RoomElement; baseY: number }) {
 
 const LAMP_MODELS = new Set(['lamp-floor', 'lamp-ceiling', 'strip-light']);
 
-function Items3D({ level, lampsOn }: { level: Level; lampsOn: boolean }) {
+function Items3D({ level, lampsOn, cutHeight }: { level: Level; lampsOn: boolean; cutHeight?: number }) {
   const setSelection = useDesignStore((s) => s.setSelection);
   const selectedIds = useDesignStore((s) => s.selectedIds);
   const baseY = level.elevation;
@@ -379,7 +415,7 @@ function Items3D({ level, lampsOn }: { level: Level; lampsOn: boolean }) {
         const selected = selectedIds.includes(el.id);
 
         if (el.type === 'roof') {
-          return <RoofMesh key={el.id} roof={el} baseY={baseY} />;
+          return cutHeight !== undefined ? null : <RoofMesh key={el.id} roof={el} baseY={baseY} />;
         }
 
         if (el.type === 'column') {
@@ -428,9 +464,32 @@ function Items3D({ level, lampsOn }: { level: Level; lampsOn: boolean }) {
         }
 
         if (el.type === 'staircase') {
-          const { width: w, depth: d, height: h } = el.dimensions;
-          const steps = Math.max(3, el.steps);
-          const stepD = d / steps;
+          const { width: w, depth: d } = el.dimensions;
+          const sol = solveStairElement(el, level.height ?? el.dimensions.height);
+          const rh = sol.riserHeight;
+          const boxes: { p: [number, number, number]; s: [number, number, number] }[] = [];
+          if (sol.type === 'u-shaped' && sol.flights.length === 2) {
+            const r1 = sol.flights[0].risers;
+            const r2 = sol.flights[1].risers;
+            const landEdge = -d / 2 + sol.landing;
+            // up flight on the right, front → landing
+            for (let i = 0; i < r1 - 1; i++) {
+              const top = (i + 1) * rh;
+              boxes.push({ p: [w / 4, top / 2, d / 2 - (i + 0.5) * sol.going], s: [w / 2, top, sol.going] });
+            }
+            // half-space landing
+            boxes.push({ p: [0, (r1 * rh) / 2, (-d / 2 + landEdge) / 2], s: [w, r1 * rh, sol.landing] });
+            // return flight on the left, landing → floor above
+            for (let i = 0; i < Math.max(0, r2 - 1); i++) {
+              const top = r1 * rh + (i + 1) * rh;
+              boxes.push({ p: [-w / 4, top / 2, landEdge + (i + 0.5) * sol.going], s: [w / 2, top, sol.going] });
+            }
+          } else {
+            for (let i = 0; i < sol.treads; i++) {
+              const top = (i + 1) * rh;
+              boxes.push({ p: [0, top / 2, d / 2 - (i + 0.5) * (d / sol.treads)], s: [w, top, d / sol.treads] });
+            }
+          }
           return (
             <group
               key={el.id}
@@ -441,14 +500,9 @@ function Items3D({ level, lampsOn }: { level: Level; lampsOn: boolean }) {
                 setSelection([el.id]);
               }}
             >
-              {Array.from({ length: steps }, (_, i) => (
-                <mesh
-                  key={i}
-                  position={[0, ((i + 1) * h) / steps / 2, d / 2 - (i + 0.5) * stepD]}
-                  castShadow
-                  receiveShadow
-                >
-                  <boxGeometry args={[w, ((i + 1) * h) / steps, stepD]} />
+              {boxes.map((b, i) => (
+                <mesh key={i} position={b.p} castShadow receiveShadow>
+                  <boxGeometry args={b.s} />
                   <ElementMaterial material={el.material} selected={selected} />
                 </mesh>
               ))}
@@ -487,7 +541,11 @@ function Items3D({ level, lampsOn }: { level: Level; lampsOn: boolean }) {
                 <MaterialErrorBoundary fallback={parametric}>
                   <Suspense fallback={parametric}>
                     <GltfModel
-                      url={assetUrl(`assets/models/${def.glb}/${def.glb}.gltf`)}
+                      url={assetUrl(
+                        def.glb.includes('.')
+                          ? `assets/models/${def.glb}` // imported: full relative path
+                          : `assets/models/${def.glb}/${def.glb}.gltf`,
+                      )}
                       w={w}
                       d={d}
                       h={h}
@@ -549,12 +607,16 @@ function LevelTrims({
 }) {
   const rings = useMemo(() => wallsUnionOutlines(walls.filter((w) => w.visible !== false)), [walls]);
   const geos = useMemo(() => {
-    const make = (factor: number, z0: number, z1: number) => {
+    // A BAND around each outline (outer inflate, inner deflate as a hole) —
+    // never a solid slab, which would cap the rooms.
+    const make = (outerF: number, innerF: number, z0: number, z1: number) => {
       const parts = rings
         .filter((r) => r.length >= 3)
         .map((r) => {
-          const pts = ensureClockwise(inflatePoly(r, factor));
-          const shape = new THREE.Shape(pts.map((p) => new THREE.Vector2(p.x, p.y)));
+          const outer = ensureClockwise(inflatePoly(r, outerF));
+          const inner = ensureClockwise(inflatePoly(r, innerF));
+          const shape = new THREE.Shape(outer.map((p) => new THREE.Vector2(p.x, p.y)));
+          shape.holes.push(new THREE.Path(inner.map((p) => new THREE.Vector2(p.x, p.y)).reverse()));
           const geo = new THREE.ExtrudeGeometry(shape, { depth: z1 - z0, bevelEnabled: false });
           geo.rotateX(Math.PI / 2);
           geo.translate(0, z1, 0);
@@ -566,8 +628,8 @@ function LevelTrims({
       return merged;
     };
     return {
-      plinth: baseY < 0.01 ? make(1.02, -0.03, 0.16) : null,
-      fascia: hasLevelAbove ? make(1.012, height - 0.16, height + 0.02) : null,
+      plinth: baseY < 0.01 ? make(1.02, 0.985, -0.03, 0.16) : null,
+      fascia: hasLevelAbove ? make(1.012, 0.99, height - 0.16, height + 0.02) : null,
     };
   }, [rings, baseY, height, hasLevelAbove]);
   useEffect(
@@ -594,7 +656,17 @@ function LevelTrims({
   );
 }
 
-function Level3D({ level, lampsOn, hasLevelAbove }: { level: Level; lampsOn: boolean; hasLevelAbove: boolean }) {
+function Level3D({
+  level,
+  lampsOn,
+  hasLevelAbove,
+  cutHeight,
+}: {
+  level: Level;
+  lampsOn: boolean;
+  hasLevelAbove: boolean;
+  cutHeight?: number;
+}) {
   const walls = useMemo(() => level.elements.filter(isWall), [level.elements]);
   const openings = useMemo(() => level.elements.filter(isOpening), [level.elements]);
   const rooms = useMemo(() => level.elements.filter(isRoom), [level.elements]);
@@ -618,10 +690,15 @@ function Level3D({ level, lampsOn, hasLevelAbove }: { level: Level; lampsOn: boo
       ))}
       {walls.map((w) =>
         w.visible === false ? null : (
-          <Wall3D key={w.id} wall={w} walls={walls} openings={openings} roofs={roofs} baseY={baseY} />
+          <Wall3D key={w.id} wall={w} walls={walls} openings={openings} roofs={roofs} baseY={baseY} cutHeight={cutHeight} />
         ),
       )}
-      <LevelTrims walls={walls} baseY={baseY} height={level.height ?? 3} hasLevelAbove={hasLevelAbove} />
+      <LevelTrims
+        walls={walls}
+        baseY={baseY}
+        height={level.height ?? 3}
+        hasLevelAbove={hasLevelAbove && cutHeight === undefined}
+      />
       {openings.map((o) => {
         const host = walls.find((w) => w.id === o.wallId);
         if (!host || o.visible === false) return null;
@@ -630,9 +707,11 @@ function Level3D({ level, lampsOn, hasLevelAbove }: { level: Level; lampsOn: boo
         const perp = { x: -dir.y, y: dir.x };
         const outward: 1 | -1 =
           perp.x * (center.x - centroid.x) + perp.y * (center.y - centroid.y) >= 0 ? 1 : -1;
-        return <Opening3D key={o.id} opening={o} host={host} baseY={baseY} outward={outward} />;
+        return (
+          <Opening3D key={o.id} opening={o} host={host} baseY={baseY} outward={outward} cutHeight={cutHeight} />
+        );
       })}
-      <Items3D level={level} lampsOn={lampsOn} />
+      <Items3D level={level} lampsOn={lampsOn} cutHeight={cutHeight} />
     </group>
   );
 }
@@ -793,13 +872,36 @@ function WalkControls({ start, target }: { start: Point; target: Point }) {
   return <PointerLockControls makeDefault domElement={gl.domElement} />;
 }
 
+/** One-shot dollhouse framing when the cutaway toggles on. */
+function CutawayCamera({ center, span, baseY }: { center: Point; span: number; baseY: number }) {
+  const camera = useThree((s) => s.camera);
+  const controls = useThree((s) => s.controls) as unknown as {
+    target?: THREE.Vector3;
+    update?: () => void;
+  } | null;
+  const frame = useRef({ center, span, baseY });
+  useEffect(() => {
+    const { center: c, span: s, baseY: b } = frame.current;
+    camera.position.set(c.x + s * 0.08, b + s * 0.95 + 3, c.y + s * 0.62);
+    if (controls?.target) {
+      controls.target.set(c.x, b + 0.4, c.y);
+      controls.update?.();
+    } else {
+      camera.lookAt(c.x, b + 0.4, c.y);
+    }
+  }, [camera, controls]);
+  return null;
+}
+
 export function Scene3D() {
   const doc = useDesignStore((s) => s.doc);
+  const activeLevelId = useDesignStore((s) => s.activeLevelId);
   const dayNight = useDesignStore((s) => s.dayNight);
-  const night = dayNight === 'night';
-  const evening = dayNight === 'evening';
+  const cutaway = useUiStore((s) => s.cutaway);
+  const night = !cutaway && dayNight === 'night';
+  const evening = !cutaway && dayNight === 'evening';
   const lampsOn = night || evening;
-  const skyColor = night ? '#0a0f1c' : evening ? '#35425f' : '#bfd9ec';
+  const skyColor = cutaway ? '#eef0f2' : night ? '#0a0f1c' : evening ? '#35425f' : '#bfd9ec';
   const sunHour = useDesignStore((s) => s.sunHour);
   const highQuality = useUiStore((s) => s.renderQuality === 'high');
   const navMode = useUiStore((s) => s.navMode);
@@ -828,6 +930,17 @@ export function Scene3D() {
     if (walls.length > 0) return polygonCentroid(walls.flatMap((w) => [w.start, w.end]));
     return { x: 6, y: 6 };
   }, [doc]);
+
+  // Dollhouse framing: span of the active level's walls.
+  const CUT_HEIGHT = 1.15;
+  const levelsToRender = cutaway ? doc.levels.filter((l) => l.id === activeLevelId) : doc.levels;
+  const cutSpan = useMemo(() => {
+    const walls = (doc.levels.find((l) => l.id === activeLevelId) ?? doc.levels[0])?.elements.filter(isWall) ?? [];
+    if (walls.length === 0) return 12;
+    const xs = walls.flatMap((w) => [w.start.x, w.end.x]);
+    const ys = walls.flatMap((w) => [w.start.y, w.end.y]);
+    return Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), 8);
+  }, [doc, activeLevelId]);
 
   // Walkthrough spawn: a few meters in front of the building, facing it.
   const walkSpawn = useMemo(() => {
@@ -866,19 +979,35 @@ export function Scene3D() {
           exportRegistry.glCanvas = gl.domElement;
         }}
       >
-        <RendererSettings mode={dayNight} />
+        <RendererSettings mode={cutaway ? 'day' : dayNight} />
         <SoftShadows size={18} samples={10} focus={0.6} />
         <color attach="background" args={[skyColor]} />
-        <fog attach="fog" args={[night ? '#0a0f1c' : evening ? '#35425f' : '#cfe0ee', 60, 220]} />
+        {!cutaway && <fog attach="fog" args={[night ? '#0a0f1c' : evening ? '#35425f' : '#cfe0ee', 60, 220]} />}
 
         <Suspense fallback={null}>
           <Environment
             files={night ? HDRI_NIGHT : HDRI_DAY}
-            environmentIntensity={night ? 0.5 : evening ? 0.28 : 0.65}
+            environmentIntensity={cutaway ? 1.35 : night ? 0.5 : evening ? 0.28 : 0.65}
           />
         </Suspense>
 
-        {night ? (
+        {cutaway ? (
+          <>
+            {/* studio: soft key from high above, generous fill */}
+            <ambientLight intensity={0.7} />
+            <directionalLight
+              position={[center.x + cutSpan * 0.5, cutSpan * 2.2, center.y + cutSpan * 0.9]}
+              intensity={2.1}
+              castShadow
+              shadow-mapSize={[2048, 2048]}
+              shadow-camera-left={-cutSpan}
+              shadow-camera-right={cutSpan}
+              shadow-camera-top={cutSpan}
+              shadow-camera-bottom={-cutSpan}
+              shadow-bias={-0.0002}
+            />
+          </>
+        ) : night ? (
           <>
             <ambientLight intensity={0.12} color="#7285a8" />
             <directionalLight position={[-25, 35, -12]} intensity={0.3} color="#9db4d6" castShadow />
@@ -918,15 +1047,35 @@ export function Scene3D() {
           </>
         )}
 
-        <Ground night={night} plot={doc.plot.boundary} />
-        {doc.levels.map((level) => (
+        {cutaway ? (
+          // shadow catcher — the model floats on the studio backdrop
+          <mesh
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[center.x, (doc.levels.find((l) => l.id === activeLevelId)?.elevation ?? 0) - 0.03, center.y]}
+            receiveShadow
+          >
+            <planeGeometry args={[400, 400]} />
+            <shadowMaterial opacity={0.15} />
+          </mesh>
+        ) : (
+          <Ground night={night} plot={doc.plot.boundary} />
+        )}
+        {levelsToRender.map((level) => (
           <Level3D
             key={level.id}
             level={level}
             lampsOn={lampsOn}
             hasLevelAbove={doc.levels.some((o) => o.elevation > level.elevation + 0.1)}
+            cutHeight={cutaway ? CUT_HEIGHT : undefined}
           />
         ))}
+        {cutaway && (
+          <CutawayCamera
+            center={center}
+            span={cutSpan}
+            baseY={doc.levels.find((l) => l.id === activeLevelId)?.elevation ?? 0}
+          />
+        )}
 
         {navMode === 'walk' ? (
           <WalkControls start={walkSpawn.start} target={walkSpawn.target} />

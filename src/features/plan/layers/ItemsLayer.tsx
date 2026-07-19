@@ -1,8 +1,10 @@
-import { Circle, Group, Line, Rect, Text } from 'react-konva';
+import { Circle, Group, Rect, Text } from 'react-konva';
 import type { Element } from '../../../types';
 import { useDesignStore } from '../../../store/designStore';
 import { catalogItemById } from '../../../library/catalog';
-import { Symbol2DShape } from '../symbols2d';
+import { solveStairElement } from '../../../engine/stair';
+import { stairPlanBlock } from '../../../engine/stairPlan';
+import { PrimGlyph, Symbol2DShape } from '../symbols2d';
 
 const deg = (rad: number) => (rad * 180) / Math.PI;
 
@@ -101,21 +103,21 @@ export function ItemsLayer() {
         }
 
         if (el.type === 'staircase') {
-          const steps = el.steps;
-          const treads = [];
-          for (let i = 1; i < steps; i++) {
-            const y = -d / 2 + (i * d) / steps;
-            treads.push(
-              <Line key={i} points={[-w / 2, y, w / 2, y]} stroke="#6b6558" strokeWidth={1} strokeScaleEnabled={false} />,
-            );
-          }
+          const sol = solveStairElement(el, level.height ?? el.dimensions.height);
           return (
             <Group key={el.id} x={t.position.x} y={t.position.y} rotation={deg(t.rotation)} elementId={el.id}>
-              <Rect x={-w / 2} y={-d / 2} width={w} height={d} fill="#eceade" stroke="#6b6558" strokeWidth={1.2} strokeScaleEnabled={false} />
-              {treads}
-              {/* direction-of-climb arrow */}
-              <Line points={[0, d / 2 - 0.2, 0, -d / 2 + 0.25]} stroke="#4a463d" strokeWidth={1.2} strokeScaleEnabled={false} />
-              <Line points={[-0.09, -d / 2 + 0.42, 0, -d / 2 + 0.25, 0.09, -d / 2 + 0.42]} closed fill="#4a463d" />
+              {/* hit region */}
+              <Rect x={-w / 2} y={-d / 2} width={w} height={d} opacity={0} />
+              <PrimGlyph prims={stairPlanBlock(w, d, sol)} stroke="#3d382f" body="#eceade" />
+              <Text
+                text={`UP ${sol.risers}R`}
+                fontSize={0.18}
+                fontStyle="600"
+                fill={sol.ok ? '#3d382f' : '#b3701f'}
+                x={sol.type === 'u-shaped' ? w / 2 - 0.78 : 0.1}
+                y={d / 2 - 0.36}
+                listening={false}
+              />
               {selectionBox}
             </Group>
           );

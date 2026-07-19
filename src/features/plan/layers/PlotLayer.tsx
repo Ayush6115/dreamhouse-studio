@@ -51,7 +51,9 @@ export function PlotLayer({ vpScale }: Props) {
   };
 
   return (
-    <Group>
+    // Reference geometry: hit-testable only with the Select tool, so plot
+    // and setback outlines never intercept drawing/placement clicks.
+    <Group listening={tool === 'select'}>
       {/* ground fill (non-interactive) */}
       <Line points={flat} closed fill="rgba(163,177,138,0.16)" listening={false} />
 

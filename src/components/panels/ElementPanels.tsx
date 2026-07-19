@@ -14,6 +14,7 @@ import { polygonArea, polygonPerimeter } from '../../geometry/polygon';
 import { wallLength } from '../../geometry/walls';
 import { formatArea, formatLength } from '../../geometry/units';
 import { ROOM_TYPE_OPTIONS, roomLabel } from '../../features/plan/factories';
+import { solveStairElement, suggestRisers } from '../../engine/stair';
 import type { RoomType } from '../../types';
 import { Field, Section } from '../ui/Section';
 import { SelectField } from '../ui/SelectField';
@@ -159,7 +160,7 @@ export function OpeningPanel({ opening }: { opening: OpeningElement }) {
           <SelectField
             value={opening.style}
             options={(opening.type === 'door'
-              ? ['single', 'double', 'sliding']
+              ? ['single', 'double', 'sliding', 'folding']
               : ['sliding', 'fixed', 'casement', 'double']
             ).map((s) => ({ value: s, label: s }))}
             onChange={(v) => apply((el) => ((el as OpeningElement).style = v as OpeningElement['style']))}
@@ -284,13 +285,86 @@ export function ItemPanel({ item }: { item: Item }) {
             />
           </Field>
         )}
-        {item.type === 'staircase' && (
-          <Field label="Steps">
-            <NumberField value={item.steps} min={3} max={30} step={1} onCommit={(v) => apply((el) => ((el as StaircaseElement).steps = Math.round(v)))} />
-          </Field>
-        )}
+        {item.type === 'staircase' && <StairFields stair={item} apply={apply} />}
       </Section>
+      {item.type === 'staircase' && <StairEngineSection stair={item} />}
       <MaterialSection element={item} />
     </>
+  );
+}
+
+function StairFields({ stair, apply }: { stair: StaircaseElement; apply: (r: (el: Element) => void) => void }) {
+  const floorToFloor = useDesignStore(
+    (s) => s.doc.levels.find((l) => l.id === s.activeLevelId)?.height ?? stair.dimensions.height,
+  );
+  return (
+    <>
+      <Field label="Layout">
+        <SelectField
+          value={stair.style}
+          options={[
+            { value: 'straight', label: 'Straight' },
+            { value: 'u-shaped', label: 'Dogleg (U)' },
+            { value: 'l-shaped', label: 'Quarter turn (L)' },
+          ]}
+          onChange={(v) => apply((el) => ((el as StaircaseElement).style = v as StaircaseElement['style']))}
+        />
+      </Field>
+      <Field label="Risers">
+        <div className="flex items-center gap-1">
+          <NumberField value={stair.steps} min={3} max={30} step={1} onCommit={(v) => apply((el) => ((el as StaircaseElement).steps = Math.round(v)))} />
+          <Button
+            variant="ghost"
+            title="Solve the riser count for this envelope and floor height"
+            onClick={() =>
+              apply((el) => {
+                const st = el as StaircaseElement;
+                st.steps = suggestRisers(st.dimensions.width, st.dimensions.depth, floorToFloor, st.style);
+              })
+            }
+          >
+            Auto
+          </Button>
+        </div>
+      </Field>
+    </>
+  );
+}
+
+/** Live engineering readout: riser/going/slope/2R+G + code-rule checks. */
+function StairEngineSection({ stair }: { stair: StaircaseElement }) {
+  const floorToFloor = useDesignStore(
+    (s) => s.doc.levels.find((l) => l.id === s.activeLevelId)?.height ?? stair.dimensions.height,
+  );
+  const s = solveStairElement(stair, floorToFloor);
+  const mm = (v: number) => `${Math.round(v * 1000)} mm`;
+  const rows: [string, string][] = [
+    ['Rise (floor-to-floor)', mm(floorToFloor)],
+    ['Risers', `${s.risers} × ${mm(s.riserHeight)}`],
+    ['Treads', `${s.treads} × ${mm(s.going)} going`],
+    ...(s.landing > 0 ? ([['Landing', mm(s.landing)]] as [string, string][]) : []),
+    ['Slope', `${s.slopeDeg.toFixed(1)}°`],
+    ['2R + G', mm(s.comfort)],
+  ];
+  return (
+    <Section title="Stair engineering">
+      {rows.map(([label, value]) => (
+        <div key={label} className="flex items-center justify-between px-0.5 py-0.5 text-xs">
+          <span className="text-ink-faint">{label}</span>
+          <span className="tabular-nums text-ink">{value}</span>
+        </div>
+      ))}
+      {s.ok ? (
+        <p className="mt-1 rounded bg-[rgba(97,164,110,0.12)] px-2 py-1.5 text-[11px] leading-snug text-[#5f9e6e]">
+          Complies with residential stair rules.
+        </p>
+      ) : (
+        s.warnings.map((w) => (
+          <p key={w} className="mt-1 rounded bg-[rgba(224,153,66,0.12)] px-2 py-1.5 text-[11px] leading-snug text-[#d99a4e]">
+            {w}
+          </p>
+        ))
+      )}
+    </Section>
   );
 }

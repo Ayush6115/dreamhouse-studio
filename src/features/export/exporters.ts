@@ -3,6 +3,8 @@ import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import type { DesignDocument } from '../../types';
 import { computeMetrics } from '../../store/calculations';
 import { formatArea, formatLength } from '../../geometry/units';
+import { buildOpeningTags, formatConstructionLength, roomSchedule } from './schedules';
+import { planDXF } from './dxf';
 import { elevationSVG, planSVG, type DrawingStyle } from './svg';
 import { rasterizeSVG } from './raster';
 import { exportRegistry } from './registry';
@@ -60,6 +62,10 @@ export async function exportPlanPNG(
     await svgToPng(planSVG(doc, levelId, style), QUALITY_SCALE[quality]),
     `${safe(doc.name)}_plan.png`,
   );
+}
+
+export function exportPlanDXF(doc: DesignDocument, levelId: string): void {
+  downloadText(planDXF(doc, levelId), `${safe(doc.name)}_plan.dxf`, 'application/dxf');
 }
 
 export function exportElevationSVG(
@@ -151,15 +157,65 @@ async function placeImage(
   pdf.addImage(dataUrl, 'PNG', x + (boxW - dw) / 2, y + (boxH - dh) / 2, dw, dh);
 }
 
-function pageHeader(pdf: jsPDF, title: string, docName: string): void {
+function pageHeader(pdf: jsPDF, title: string, docName: string, sheetNo?: string): void {
   pdf.setFontSize(14);
   pdf.setTextColor(40, 38, 32);
   pdf.text(title, 14, 16);
   pdf.setFontSize(9);
   pdf.setTextColor(130, 125, 112);
-  pdf.text(docName, 283, 16, { align: 'right' });
+  pdf.text(sheetNo ? `${docName}  ·  ${sheetNo}` : docName, 283, 16, { align: 'right' });
   pdf.setDrawColor(180, 174, 158);
   pdf.line(14, 19, 283, 19);
+}
+
+/** Simple ruled schedule table; returns the y below the table. */
+function drawTable(
+  pdf: jsPDF,
+  x: number,
+  y: number,
+  title: string,
+  headers: string[],
+  widths: number[],
+  rows: string[][],
+): number {
+  const rowH = 6.4;
+  const totalW = widths.reduce((a, b) => a + b, 0);
+  pdf.setFontSize(10.5);
+  pdf.setTextColor(40, 38, 32);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text(title, x, y);
+  y += 2.4;
+  // header band
+  pdf.setFillColor(238, 236, 230);
+  pdf.rect(x, y, totalW, rowH, 'F');
+  pdf.setFontSize(7.6);
+  let cx = x;
+  headers.forEach((h, i) => {
+    pdf.text(h, cx + 2, y + 4.3);
+    cx += widths[i];
+  });
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8.2);
+  rows.forEach((r, ri) => {
+    const ry = y + rowH * (ri + 1);
+    let c = x;
+    r.forEach((cell, i) => {
+      pdf.text(cell, c + 2, ry + 4.3);
+      c += widths[i];
+    });
+  });
+  // grid
+  const h = rowH * (rows.length + 1);
+  pdf.setDrawColor(150, 145, 132);
+  pdf.setLineWidth(0.25);
+  pdf.rect(x, y, totalW, h);
+  for (let i = 1; i <= rows.length; i++) pdf.line(x, y + rowH * i, x + totalW, y + rowH * i);
+  cx = x;
+  for (let i = 0; i < widths.length - 1; i++) {
+    cx += widths[i];
+    pdf.line(cx, y, cx, y + h);
+  }
+  return y + h + 9;
 }
 
 export async function exportPDFReport(
@@ -206,9 +262,10 @@ export async function exportPDFReport(
   }
 
   // Plan pages (every level).
+  let planIdx = 0;
   for (const level of doc.levels) {
     pdf.addPage('a4', 'landscape');
-    pageHeader(pdf, `Floor Plan — ${level.name}`, doc.name);
+    pageHeader(pdf, `Floor Plan — ${level.name}`, doc.name, `A-10${++planIdx}`);
     const png = await svgToPng(planSVG(doc, level.id, style), sheetScale);
     await placeImage(pdf, png, 14, 24, 269, 176);
   }
@@ -216,17 +273,59 @@ export async function exportPDFReport(
   // Elevation pages (every façade with content, else the active one).
   const facades = doc.facades.filter((f) => f.elements.length > 0);
   const list = facades.length > 0 ? facades : doc.facades.filter((f) => f.id === activeFacadeId);
+  let elevIdx = 0;
   for (const facade of list) {
     pdf.addPage('a4', 'landscape');
-    pageHeader(pdf, `Elevation — ${facade.name}`, doc.name);
+    pageHeader(pdf, `Elevation — ${facade.name}`, doc.name, `A-20${++elevIdx}`);
     const png = await svgToPng(elevationSVG(doc, facade.id, style), sheetScale);
     await placeImage(pdf, png, 14, 24, 269, 176);
+  }
+
+  // Schedules: door / window marks (matching the plan bubbles) + rooms.
+  {
+    const tags = buildOpeningTags(doc);
+    const fmt = (v: number) => formatConstructionLength(v, unit);
+    const sizeHdr = unit === 'metric' ? 'SIZE (MM)' : 'SIZE';
+    const sillHdr = unit === 'metric' ? 'SILL (MM)' : 'SILL';
+    pdf.addPage('a4', 'landscape');
+    pageHeader(pdf, 'Schedules', doc.name, 'A-601');
+    const y = drawTable(
+      pdf,
+      14,
+      30,
+      'DOOR SCHEDULE',
+      ['MARK', sizeHdr, 'TYPE', 'NOS'],
+      [18, 42, 44, 14],
+      tags.doors.map((r) => [r.tag, `${fmt(r.width)} × ${fmt(r.height)}`, r.style, String(r.count)]),
+    );
+    drawTable(
+      pdf,
+      14,
+      y,
+      'WINDOW SCHEDULE',
+      ['MARK', sizeHdr, sillHdr, 'TYPE', 'NOS'],
+      [18, 42, 24, 40, 14],
+      tags.windows.map((r) => [r.tag, `${fmt(r.width)} × ${fmt(r.height)}`, fmt(r.sill), r.style, String(r.count)]),
+    );
+    // room schedule on the right half
+    const roomRows = doc.levels.flatMap((level) =>
+      roomSchedule(level).map((r) => [level.name, r.name, `${fmt(r.width)} × ${fmt(r.depth)}`, formatArea(r.area, unit), r.finish]),
+    );
+    drawTable(
+      pdf,
+      160,
+      30,
+      'ROOM SCHEDULE',
+      ['LEVEL', 'ROOM', sizeHdr, 'AREA', 'FLOOR'],
+      [24, 34, 34, 20, 20],
+      roomRows.slice(0, 24),
+    );
   }
 
   // 3D render page.
   const snapshot = capture3D();
   pdf.addPage('a4', 'landscape');
-  pageHeader(pdf, '3D Render', doc.name);
+  pageHeader(pdf, '3D Render', doc.name, 'A-301');
   if (snapshot) {
     await placeImage(pdf, snapshot, 14, 24, 269, 176);
   } else {

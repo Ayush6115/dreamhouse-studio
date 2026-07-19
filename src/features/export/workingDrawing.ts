@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   DesignDocument,
   Facade,
   Level,
@@ -12,11 +12,16 @@ import { isFurniture, isOpening, isRoom, isWall } from '../../types';
 import { dimensionChains } from '../../geometry/dimchains';
 import { polygonBounds, polygonCentroid } from '../../geometry/polygon';
 import { buildableRegion } from '../../geometry/setbacks';
+import { setbackAnnotations } from '../../geometry/setbackAnnotations';
 import { add, closestPointOnSegment, dist, norm, scale as vscale, sub } from '../../geometry/vec';
 import { wallThickness, wallsUnionOutlines } from '../../geometry/walls';
-import { formatArea, formatLength } from '../../geometry/units';
+import { formatArea } from '../../geometry/units';
 import { computeLevelMetrics } from '../../store/calculations';
+import { buildOpeningTags, formatConstructionLength } from './schedules';
 import { catalogItemById, type Symbol2D } from '../../library/catalog';
+import { primsToSVG, symbolBlockSVG } from '../../library/symbolBlocks';
+import { solveStairElement } from '../../engine/stair';
+import { stairPlanBlock } from '../../engine/stairPlan';
 
 /**
  * Monochrome working-drawing sheets (plan + elevation), generated from the
@@ -112,7 +117,7 @@ function chainRow(
     const span = stations[i + 1] - stations[i];
     if (span < 0.12) continue;
     const mid = (stations[i] + stations[i + 1]) / 2;
-    const label = formatLength(span, unit);
+    const label = formatConstructionLength(span, unit);
     if (horizontal) g.push(text(mid, lineCoord - 0.07, fontSize, label));
     else g.push(text(lineCoord - 0.07, mid, fontSize, label, { rotate: -90 }));
   }
@@ -121,141 +126,9 @@ function chainRow(
 
 // ------------------------------------------------------- furniture symbols
 
-/** Thin-line fixture/furniture symbols, drawn centered in a w × d box. */
+/** Thin-line fixture/furniture blocks — shared with the plan canvas. */
 function furnitureSymbol(kind: Symbol2D | undefined, w: number, d: number): string {
-  const hw = w / 2;
-  const hd = d / 2;
-  const th = PEN.thin;
-  const body = rect(-hw, -hd, w, d, '#ffffff', FURN, th);
-  const g: string[] = [];
-  switch (kind) {
-    case 'bed':
-      g.push(body);
-      g.push(rect(-hw + 0.08, -hd + 0.08, w / 2 - 0.14, 0.35, 'none', FURN, th, ' rx="0.05"'));
-      if (w > 1.2) g.push(rect(0.06, -hd + 0.08, w / 2 - 0.14, 0.35, 'none', FURN, th, ' rx="0.05"'));
-      g.push(line(-hw, -hd + 0.6, hw, -hd + 0.6, FURN, th));
-      g.push(line(-hw, -hd + 0.6, -hw + 0.35, -hd + 0.95, FURN, PEN.hair)); // blanket fold
-      break;
-    case 'sofa':
-      g.push(body);
-      g.push(rect(-hw + 0.12, -hd + 0.12, w - 0.24, d - 0.24, 'none', FURN, th, ' rx="0.04"'));
-      g.push(line(-hw + 0.12, -hd + 0.12 + (d - 0.24) * 0.35, hw - 0.12, -hd + 0.12 + (d - 0.24) * 0.35, FURN, th));
-      for (let i = 1; i < 3; i++) g.push(line(-hw + 0.12 + ((w - 0.24) * i) / 3, -hd + 0.12 + (d - 0.24) * 0.35, -hw + 0.12 + ((w - 0.24) * i) / 3, hd - 0.12, FURN, PEN.hair));
-      break;
-    case 'sofa-l':
-      g.push(
-        `<polygon points="${pts([
-          { x: -hw, y: -hd }, { x: hw, y: -hd }, { x: hw, y: -hd + 0.9 },
-          { x: -hw + 0.9, y: -hd + 0.9 }, { x: -hw + 0.9, y: hd }, { x: -hw, y: hd },
-        ])}" fill="#ffffff" stroke="${FURN}" stroke-width="${th}"/>`,
-      );
-      g.push(line(-hw + 0.25, -hd + 0.25, hw - 0.2, -hd + 0.25, FURN, th));
-      g.push(line(-hw + 0.25, -hd + 0.25, -hw + 0.25, hd - 0.2, FURN, th));
-      break;
-    case 'armchair':
-      g.push(body, rect(-hw + 0.1, -hd + 0.14, w - 0.2, d - 0.24, 'none', FURN, th, ' rx="0.05"'));
-      break;
-    case 'chair':
-      g.push(body, line(-hw, -hd + 0.08, hw, -hd + 0.08, FURN, th));
-      break;
-    case 'table-round':
-      g.push(circle(0, 0, hw, FURN, th, '#ffffff'));
-      break;
-    case 'wardrobe':
-    case 'dresser': {
-      g.push(body);
-      // diagonal hatch — casework convention
-      const step = 0.16;
-      for (let s = -hw - d; s < hw; s += step) {
-        const x1 = Math.max(-hw, s);
-        const y1 = s > -hw ? -hd : -hd + (-hw - s);
-        const x2 = Math.min(hw, s + d);
-        const y2 = s + d < hw ? hd : hd - (s + d - hw);
-        g.push(line(x1, y1, x2, y2, FURN, PEN.hair));
-      }
-      break;
-    }
-    case 'tv-unit':
-      g.push(body, line(-hw + 0.12, hd - 0.08, hw - 0.12, hd - 0.08, INK, 0.03));
-      break;
-    case 'bookshelf':
-      g.push(body, line(-hw + w * 0.33, -hd, -hw + w * 0.33, hd, FURN, th), line(-hw + w * 0.66, -hd, -hw + w * 0.66, hd, FURN, th));
-      break;
-    case 'counter':
-    case 'island':
-      g.push(body, rect(-hw + 0.05, -hd + 0.05, w - 0.1, d - 0.1, 'none', FURN, PEN.hair));
-      break;
-    case 'planter': {
-      g.push(body, rect(-hw + 0.05, -hd + 0.05, w - 0.1, d - 0.1, 'none', FURN, PEN.hair));
-      const shrubs = Math.max(1, Math.round(w / 0.45));
-      for (let i = 0; i < shrubs; i++) {
-        g.push(circle(-hw + (w * (i + 0.5)) / shrubs, 0, Math.min(hd, w / shrubs / 2) * 0.65, '#7b7d78', PEN.hair));
-      }
-      break;
-    }
-    case 'fridge':
-      g.push(body, line(-hw, -hd + 0.18, hw, -hd + 0.18, FURN, th), text(0, 0.1, Math.min(0.22, w * 0.36), 'REF', { fill: FURN }));
-      break;
-    case 'stove': {
-      g.push(body);
-      const r = Math.min(w, d) * 0.14;
-      for (const [x, y] of [[-w * 0.22, -d * 0.18], [w * 0.22, -d * 0.18], [-w * 0.22, d * 0.22], [w * 0.22, d * 0.22]]) {
-        g.push(circle(x, y, r, FURN, th));
-        g.push(circle(x, y, r * 0.4, FURN, PEN.hair));
-      }
-      break;
-    }
-    case 'sink':
-      g.push(body, rect(-hw + 0.08, -hd + 0.08, w - 0.16, d - 0.16, 'none', FURN, th, ' rx="0.06"'), circle(0, -hd + 0.13, 0.035, FURN, th));
-      break;
-    case 'toilet':
-      g.push(rect(-hw, -hd, w, 0.18, '#ffffff', FURN, th));
-      g.push(`<ellipse cx="0" cy="${num(0.1)}" rx="${num(hw * 0.8)}" ry="${num(hd - 0.2)}" fill="#ffffff" stroke="${FURN}" stroke-width="${th}"/>`);
-      g.push(`<ellipse cx="0" cy="${num(0.12)}" rx="${num(hw * 0.5)}" ry="${num((hd - 0.2) * 0.62)}" fill="none" stroke="${FURN}" stroke-width="${PEN.hair}"/>`);
-      break;
-    case 'washbasin':
-      g.push(body, `<ellipse cx="0" cy="0.02" rx="${num(hw * 0.7)}" ry="${num(hd * 0.6)}" fill="none" stroke="${FURN}" stroke-width="${th}"/>`, circle(0, -hd + 0.12, 0.025, FURN, PEN.hair));
-      break;
-    case 'shower':
-      g.push(body, line(-hw, -hd, hw, hd, FURN, PEN.hair), line(hw, -hd, -hw, hd, FURN, PEN.hair), circle(0, 0, 0.05, FURN, th));
-      break;
-    case 'bathtub':
-      g.push(body, rect(-hw + 0.09, -hd + 0.09, w - 0.18, d - 0.18, 'none', FURN, th, ' rx="0.16"'), circle(-hw + 0.22, 0, 0.04, FURN, th));
-      break;
-    case 'washing-machine':
-      g.push(body, circle(0, 0.02, Math.min(w, d) * 0.3, FURN, th), circle(0, 0.02, Math.min(w, d) * 0.18, FURN, PEN.hair));
-      break;
-    case 'plant': {
-      g.push(circle(0, 0, hw, '#7b7d78', PEN.hair));
-      for (const a of [0, 60, 120, 180, 240, 300]) {
-        g.push(line(0, 0, hw * 0.85 * Math.cos((a * Math.PI) / 180), hw * 0.85 * Math.sin((a * Math.PI) / 180), '#7b7d78', PEN.hair));
-      }
-      break;
-    }
-    case 'rug':
-      g.push(rect(-hw, -hd, w, d, 'none', FURN, PEN.hair, ' stroke-dasharray="0.08 0.06"'));
-      break;
-    case 'railing': {
-      g.push(line(-hw, -hd, hw, -hd, FURN, th), line(-hw, hd, hw, hd, FURN, th));
-      const posts = Math.max(2, Math.round(w / 0.6));
-      for (let i = 0; i <= posts; i++) g.push(circle(-hw + (w * i) / posts, 0, 0.028, FURN, 0, FURN));
-      break;
-    }
-    case 'slats': {
-      g.push(body);
-      const c = Math.max(3, Math.round(w / 0.15));
-      for (let i = 0; i < c; i++) g.push(line(-hw + (w * (i + 0.5)) / c, -hd, -hw + (w * (i + 0.5)) / c, hd, FURN, PEN.hair));
-      break;
-    }
-    case 'lamp-floor':
-    case 'lamp-ceiling':
-      g.push(circle(0, 0, hw, FURN, th, '#ffffff'), line(-hw, 0, hw, 0, FURN, PEN.hair), line(0, -hd, 0, hd, FURN, PEN.hair));
-      break;
-    case 'table-rect':
-    default:
-      g.push(body);
-  }
-  return g.join('');
+  return symbolBlockSVG(kind, w, d, { stroke: FURN, thin: PEN.thin, thick: 0.02, body: '#ffffff' });
 }
 
 /** Top-view car for porch/parking rooms. */
@@ -323,6 +196,12 @@ function doorSymbol(o: OpeningElement, w: number, th: number): string {
     g.push(line(-w / 2, -0.02 - th / 6, 0.06, -0.02 - th / 6, INK, 0.045));
     g.push(line(-0.06, 0.02 + th / 6, w / 2, 0.02 + th / 6, INK, 0.045));
     g.push(line(-w / 2, 0, w / 2, 0, INK_SOFT, PEN.hair));
+  } else if (o.style === 'folding') {
+    const q = w / 4;
+    const rise = -s * w * 0.2;
+    g.push(
+      `<polyline points="${num(-w / 2)},0 ${num(-q)},${num(rise)} 0,0 ${num(q)},${num(rise)} ${num(w / 2)},0" fill="none" stroke="${INK}" stroke-width="${PEN.med}" stroke-linejoin="round"/>`,
+    );
   } else if (o.style === 'double') {
     const h = w / 2;
     leaf(-w / 2, h, s);
@@ -368,28 +247,21 @@ function gridHatch(clipId: string, poly: Point[], step: number): string {
 
 // -------------------------------------------------------------- staircase
 
-function staircaseSymbol(el: StaircaseElement): string {
+function staircaseSymbol(el: StaircaseElement, floorToFloor: number): string {
   const w = el.dimensions.width;
   const d = el.dimensions.depth;
-  const steps = Math.max(3, el.steps);
-  const g: string[] = [];
-  g.push(rect(-w / 2, -d / 2, w, d, '#ffffff', INK_MID, PEN.med));
-  for (let i = 1; i < steps; i++) {
-    const y = -d / 2 + (d * i) / steps;
-    g.push(line(-w / 2, y, w / 2, y, INK_MID, PEN.thin));
-  }
-  // break line across the middle of the run
-  const by = 0;
-  const z = 0.1;
+  const sol = solveStairElement(el, floorToFloor);
+  const g: string[] = [
+    primsToSVG(stairPlanBlock(w, d, sol), { stroke: INK_MID, thin: PEN.thin, thick: 0.024, body: '#ffffff' }),
+  ];
+  const tx = sol.type === 'u-shaped' ? w / 2 - 0.02 : 0.16;
+  g.push(text(tx, d / 2 - 0.32, 0.2, 'UP', { anchor: 'end', weight: 700 }));
   g.push(
-    `<polyline points="${num(-w / 2 - 0.06)},${num(by + z)} ${num(-w / 6)},${num(by + z * 0.2)} ${num(0)},${num(by + z * 1.4)} ${num(w / 6)},${num(by - z * 0.6)} ${num(w / 2 + 0.06)},${num(by - z * 0.1)}" fill="none" stroke="${INK}" stroke-width="${PEN.thin}"/>`,
+    text(tx, d / 2 - 0.06, 0.16, `${sol.risers} R × ${Math.round(sol.riserHeight * 1000)}`, {
+      anchor: 'end',
+      fill: INK_MID,
+    }),
   );
-  // walk line: tail circle at first riser, arrow at top
-  g.push(circle(0, d / 2 - 0.18, 0.05, INK, PEN.thin));
-  g.push(line(0, d / 2 - 0.18, 0, -d / 2 + 0.3, INK, 0.026));
-  g.push(`<path d="M -0.1 ${num(-d / 2 + 0.42)} L 0 ${num(-d / 2 + 0.2)} L 0.1 ${num(-d / 2 + 0.42)}" fill="none" stroke="${INK}" stroke-width="0.026"/>`);
-  g.push(text(0.16, d / 2 - 0.32, 0.2, `UP`, { anchor: 'start', weight: 700 }));
-  g.push(text(0.16, d / 2 - 0.06, 0.17, `${steps} R`, { anchor: 'start', fill: INK_MID }));
   return g.join('');
 }
 
@@ -443,6 +315,10 @@ export function planWorkingSVG(doc: DesignDocument, levelId: string): string {
   if (allPts.length === 0) allPts.push({ x: 0, y: 0 }, { x: 10, y: 10 });
   const b = polygonBounds(allPts);
 
+  const tags = buildOpeningTags(doc).byId;
+  const wallCentroid =
+    walls.length > 0 ? polygonCentroid(walls.flatMap((w) => [w.start, w.end])) : { x: 0, y: 0 };
+
   const chains = dimensionChains(walls, openings);
   const maxRows = chains.reduce((mx, c) => Math.max(mx, c.rows.length), 0);
   const chainExtent = maxRows > 0 ? 0.55 + maxRows * 0.55 : 0;
@@ -476,6 +352,49 @@ export function planWorkingSVG(doc: DesignDocument, levelId: string): string {
       parts.push(
         `<polygon points="${pts(region)}" fill="none" stroke="${INK_SOFT}" stroke-width="${PEN.hair}" stroke-dasharray="0.3 0.16"/>`,
       );
+      // Setback clearances: perpendicular to the plot boundary, hairline
+      // weight (below the property line in the hierarchy), staggered so
+      // labels never collide.
+      const labelBoxes: { x: number; y: number; w: number; h: number }[] = [];
+      for (const ann of setbackAnnotations(doc.plot.boundary, region)) {
+        const dx = ann.to.x - ann.from.x;
+        const dy = ann.to.y - ann.from.y;
+        const len = Math.hypot(dx, dy);
+        const ux = dx / len;
+        const uy = dy / len;
+        const arrow = (tip: Point, sign: 1 | -1) =>
+          `<polygon points="${num(tip.x)},${num(tip.y)} ${num(tip.x + sign * ux * 0.13 - uy * 0.04)},${num(
+            tip.y + sign * uy * 0.13 + ux * 0.04,
+          )} ${num(tip.x + sign * ux * 0.13 + uy * 0.04)},${num(tip.y + sign * uy * 0.13 - ux * 0.04)}" fill="${INK_SOFT}"/>`;
+        parts.push(
+          line(ann.from.x, ann.from.y, ann.to.x, ann.to.y, INK_SOFT, PEN.hair),
+          arrow(ann.from, 1),
+          arrow(ann.to, -1),
+        );
+        const label =
+          formatConstructionLength(ann.distance, unit) + (ann.note === 'varies' ? ' VARIES' : '');
+        const mid = { x: (ann.from.x + ann.to.x) / 2, y: (ann.from.y + ann.to.y) / 2 };
+        let ang = (Math.atan2(dy, dx) * 180) / Math.PI;
+        if (ang > 90 || ang <= -90) ang += 180;
+        // collision-aware placement: try both sides, then a wider offset
+        const fh = 0.19;
+        const fw = label.length * fh * 0.62;
+        let px = mid.x;
+        let py = mid.y;
+        for (const off of [0.15, -0.15, 0.4, -0.4]) {
+          const cx2 = mid.x - uy * off;
+          const cy2 = mid.y + ux * off;
+          const box = { x: cx2 - fw / 2, y: cy2 - fh / 2, w: fw, h: fh };
+          const hit = labelBoxes.some(
+            (b) => box.x < b.x + b.w && box.x + box.w > b.x && box.y < b.y + b.h && box.y + box.h > b.y,
+          );
+          px = cx2;
+          py = cy2;
+          if (!hit) break;
+        }
+        labelBoxes.push({ x: px - fw / 2, y: py - fh / 2, w: fw, h: fh });
+        parts.push(text(px, py + fh * 0.3, fh, label, { rotate: ang, fill: INK_MID }));
+      }
     }
   }
 
@@ -501,8 +420,21 @@ export function planWorkingSVG(doc: DesignDocument, levelId: string): string {
   }
 
   // Car in parking rooms that can hold one (scaled down a little if snug).
+  // Skipped when the user has placed an actual vehicle in that room.
+  const placedCars = furniture.filter((f) => catalogItemById(f.catalogId)?.symbol === 'car');
   for (const r of rooms) {
     if (r.roomType !== 'parking' || r.boundary.length < 3) continue;
+    const rbb = polygonBounds(r.boundary);
+    if (
+      placedCars.some(
+        (f) =>
+          f.transform.position.x >= rbb.min.x &&
+          f.transform.position.x <= rbb.max.x &&
+          f.transform.position.y >= rbb.min.y &&
+          f.transform.position.y <= rbb.max.y,
+      )
+    )
+      continue;
     const rb = polygonBounds(r.boundary);
     const rw = rb.max.x - rb.min.x;
     const rd = rb.max.y - rb.min.y;
@@ -522,7 +454,7 @@ export function planWorkingSVG(doc: DesignDocument, levelId: string): string {
     if (el.type !== 'staircase' || el.visible === false) continue;
     const deg = (el.transform.rotation * 180) / Math.PI;
     parts.push(
-      `<g transform="translate(${num(el.transform.position.x)} ${num(el.transform.position.y)}) rotate(${num(deg)})">${staircaseSymbol(el)}</g>`,
+      `<g transform="translate(${num(el.transform.position.x)} ${num(el.transform.position.y)}) rotate(${num(deg)})">${staircaseSymbol(el, level?.height ?? el.dimensions.height)}</g>`,
     );
   }
 
@@ -559,6 +491,20 @@ export function planWorkingSVG(doc: DesignDocument, levelId: string): string {
     const gap = rect(-w / 2, -th / 2 - 0.012, w, th + 0.024, '#ffffff');
     const sym = o.type === 'door' ? doorSymbol(o, w, th) : windowSymbol(w, th);
     parts.push(`<g transform="translate(${num(c.x)} ${num(c.y)}) rotate(${num(deg)})">${gap}${sym}</g>`);
+    // mark bubble (D1/W2 …) on the room side, keyed to the schedule
+    const tag = tags.get(o.id);
+    if (tag) {
+      const perp = { x: -dir.y, y: dir.x };
+      const side =
+        perp.x * (c.x - wallCentroid.x) + perp.y * (c.y - wallCentroid.y) >= 0 ? -1 : 1;
+      const off = th / 2 + 0.34;
+      const bx = c.x + perp.x * side * off;
+      const by = c.y + perp.y * side * off;
+      parts.push(
+        circle(bx, by, 0.19, INK, PEN.thin, '#ffffff'),
+        text(bx, by + 0.055, 0.16, tag, { weight: 700 }),
+      );
+    }
   }
 
   // Roof overhangs: dashed.
@@ -577,7 +523,7 @@ export function planWorkingSVG(doc: DesignDocument, levelId: string): string {
     if (r.boundary.length < 3 || r.visible === false) continue;
     const c = polygonCentroid(r.boundary);
     const rb = polygonBounds(r.boundary);
-    const size = `${formatLength(rb.max.x - rb.min.x, unit)} × ${formatLength(rb.max.y - rb.min.y, unit)}`;
+    const size = `${formatConstructionLength(rb.max.x - rb.min.x, unit)} × ${formatConstructionLength(rb.max.y - rb.min.y, unit)}`;
     const roomW = rb.max.x - rb.min.x;
     const name = r.name.toUpperCase();
     const nameSize = Math.min(0.32, Math.max(0.15, (roomW * 0.85) / (name.length * 0.66)));
@@ -645,7 +591,13 @@ export function planWorkingSVG(doc: DesignDocument, levelId: string): string {
   }
   parts.push(scaleBar(cx, ty + 1.06, unit));
   parts.push(
-    text(cx, ty + 1.72, 0.24, `${doc.name} · All dimensions to structural faces · Do not scale off this drawing`, { fill: INK_MID }),
+    text(
+      cx,
+      ty + 1.72,
+      0.24,
+      `${doc.name} · All dimensions ${unit === 'metric' ? 'in mm, ' : ''}to structural faces · Do not scale off this drawing`,
+      { fill: INK_MID },
+    ),
   );
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${num(vb.x)} ${num(vb.y)} ${num(vb.w)} ${num(vb.h)}" width="${Math.round(vb.w * 55)}" height="${Math.round(vb.h * 55)}">
@@ -889,7 +841,7 @@ export function elevationWorkingSVG(doc: DesignDocument, facadeId: string): stri
   const datum = (z: number, label: string) => {
     parts.push(line(profX1, -z, dx + 0.4, -z, INK_SOFT, PEN.hair, ' stroke-dasharray="0.14 0.1"'));
     parts.push(`<polygon points="${num(dx)},${num(-z)} ${num(dx - 0.09)},${num(-z - 0.14)} ${num(dx + 0.09)},${num(-z - 0.14)}" fill="none" stroke="${INK}" stroke-width="${PEN.thin}"/>`);
-    const lvl = z === 0 ? `±0` : `+${formatLength(z, unit)}`;
+    const lvl = z === 0 ? `±0` : `+${formatConstructionLength(z, unit)}`;
     parts.push(text(dx + 0.5, -z - 0.18, 0.22, `${label} ${lvl}`, { anchor: 'start', weight: 600 }));
   };
   datum(0, 'GL');
@@ -918,7 +870,13 @@ export function elevationWorkingSVG(doc: DesignDocument, facadeId: string): stri
     text(cx2, ty, 0.52, facade.name.toUpperCase(), { weight: 700 }),
     line(cx2 - 2.9, ty + 0.2, cx2 + 2.9, ty + 0.2, INK, 0.045),
     line(cx2 - 2.9, ty + 0.28, cx2 + 2.9, ty + 0.28, INK, PEN.hair),
-    text(cx2, ty + 0.72, 0.24, `${doc.name} · Levels related to GL ±0 · Do not scale off this drawing`, { fill: INK_MID }),
+    text(
+      cx2,
+      ty + 0.72,
+      0.24,
+      `${doc.name} · Levels ${unit === 'metric' ? 'in mm ' : ''}related to GL ±0 · Do not scale off this drawing`,
+      { fill: INK_MID },
+    ),
   );
   parts.push(scaleBar(cx2, ty + 1.0, unit));
 

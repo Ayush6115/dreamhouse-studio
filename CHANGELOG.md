@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- Modern component library: contemporary CC0 pieces from Poly Haven (Sofa 01/03, ArmChair 01, coffee tables, shelving, outdoor set, ceiling fan) replace the dated models; beds, wardrobes, kitchen modules, appliances (oven, dishwasher, microwave, chimney hood), vanity, office chair, bunk bed, wall TV, cars (sedan/SUV/hatchback), bicycle, pergola, and steel/wood railings are clean parametric designs. Folding (bi-fold) door family in 2D, 3D and DXF.
+- Component-store thumbnails are now the item's actual architectural plan block, generated from the shared symbol library.
+- Asset import pipeline (`scripts/import-assets.mjs`): drop `.glb`/`.gltf` files in `assets-inbox/`, and they are deduplicated, size-normalized (mm/cm auto-detected), given a plan symbol by name heuristics, categorized by folder, and merged into the library at startup.
+- Asset sourcing guide (`docs/asset-sources.md`) ranking legally-usable repositories and the recommended combination.
+- 3D floor plan (dollhouse) mode: one click slices the active level's walls at 1.15 m, clips the joinery, hides roofs, and frames the model on a studio backdrop with a soft shadow — the classic cutaway floor-plan render, compatible with the photoreal path tracer.
+- Premium presentation plans: soft drop shadows under walls and furniture, plank/tile/paving floor linework clipped per room, material-tinted furniture, fitted room labels drawn above furnishings, and clean outer dimension chains instead of per-wall labels inside the plan.
+- Level trims are now true bands (plinth and slab fascia no longer cap room floors in 3D).
+- Example documents are saved with versioned snapshots alongside the canonical file.
+- Stair engine (`engine/stair.ts`): risers, going, flights, landings, slope and 2R+G are solved from the envelope and floor-to-floor height, validated against configurable residential rules, with dogleg (U) and straight layouts generated consistently in plan (canvas + sheets + DXF), and 3D. The staircase panel shows the live engineering readout with an Auto riser solver.
+- Door/window marks (D1…, W1…) as plan bubbles tied to generated door, window and room schedules on a dedicated PDF sheet; sheets carry drawing numbers.
+- DXF (R12) floor-plan export in millimeters with a professional layer set; walls are boolean-cut at openings and all symbols flatten from the shared parametric blocks.
+- Smart setback annotations: perpendicular clearances between plot boundary and buildable footprint, adaptive per edge (one label when constant, start/end/change stations plus a VARIES note when not), with collision-aware label placement — on the canvas and the working sheets.
+- Shared CAD symbol block library (`library/symbolBlocks.ts`) rendered identically by the plan canvas, SVG sheets and DXF.
+- Metric working drawings now dimension in millimeters per drafting convention.
+- CAD-style interaction: placing a library component returns to the Select tool (hold Shift to place copies), Esc always exits to Select, and reference geometry (plot, setback outlines, buildable fill) no longer intercepts clicks while drawing.
 - Construction-grade working drawings: a pen-weight hierarchy, grey wall poché with black column markers, dimension chains with extension lines and slash ticks, sanitary/kitchen fixture linework, tile hatching in wet areas, a car symbol in parking bays, numbered stair runs with break lines, property-line linetypes, a graphic scale bar, and enclosed-area statements that exclude open areas (`features/export/workingDrawing.ts`).
 - Model-projected working elevations: stacked floor outlines, parapet or pitched-roof silhouettes, openings with frames, sills and chajjas, a ground line with earth hatch, GL/FFL/ROOF/PARAPET level datums, and width/height dimension chains — generated from the plan model, with the composed facade as fallback.
 - First-person walkthrough in the 3D view: pointer-lock look with WASD movement at eye height, run, and rise/descend keys; element picking and editor hotkeys pause while touring.

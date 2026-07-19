@@ -1,6 +1,7 @@
 ﻿import type { DesignDocument, Facade, Level, OpeningElement, Point } from '../../types';
 import { isFurniture, isOpening, isRoom, isWall } from '../../types';
 import { ensureClockwise, polygonBounds, polygonCentroid } from '../../geometry/polygon';
+import { dimensionChains } from '../../geometry/dimchains';
 import { roofGeometry } from '../../geometry/roof';
 import { buildableRegion } from '../../geometry/setbacks';
 import { add, dist, norm, perp, scale as vscale, sub } from '../../geometry/vec';
@@ -8,6 +9,8 @@ import { wallThickness, wallsUnionOutlines } from '../../geometry/walls';
 import { formatArea, formatLength } from '../../geometry/units';
 import { polygonArea } from '../../geometry/polygon';
 import { ROOM_FILLS } from '../../library/roomColors';
+import { catalogItemById } from '../../library/catalog';
+import { symbolBlockSVG } from '../../library/symbolBlocks';
 import { facadeItemById } from '../../library/facadeCatalog';
 import { elevationWorkingSVG, planWorkingSVG } from './workingDrawing';
 
@@ -108,6 +111,18 @@ function planPresentationSVG(doc: DesignDocument, levelId: string): string {
 
   const parts: string[] = [];
 
+  // Soft drop shadows give the premium "floating plan" depth.
+  parts.push(
+    `<defs>
+      <filter id="ps-wall" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0.06" dy="0.09" stdDeviation="0.09" flood-color="#3b3630" flood-opacity="0.4"/>
+      </filter>
+      <filter id="ps-furn" x="-40%" y="-40%" width="180%" height="180%">
+        <feDropShadow dx="0.035" dy="0.05" stdDeviation="0.045" flood-color="#3b3630" flood-opacity="0.35"/>
+      </filter>
+    </defs>`,
+  );
+
   // Plot + setbacks.
   if (doc.plot.boundary.length >= 3) {
     parts.push(
@@ -135,26 +150,66 @@ function planPresentationSVG(doc: DesignDocument, levelId: string): string {
     }
   }
 
-  // Rooms.
+  // Rooms with floor-finish linework (planks / tiles / paving).
+  const roomLabels: string[] = [];
+  let floorClip = 0;
   for (const r of rooms) {
     if (r.boundary.length < 3) continue;
     const c = polygonCentroid(r.boundary);
+    const rb = polygonBounds(r.boundary);
+    const clipId = `ps-floor-${++floorClip}`;
+    const floorLines: string[] = [];
+    const WOOD_TYPES = ['bedroom', 'living', 'dining', 'study', 'pooja', 'store', 'other'];
+    if (WOOD_TYPES.includes(r.roomType)) {
+      for (let y = Math.ceil(rb.min.y / 0.17) * 0.17; y < rb.max.y; y += 0.17) {
+        floorLines.push(
+          `<line x1="${num(rb.min.x)}" y1="${num(y)}" x2="${num(rb.max.x)}" y2="${num(y)}" stroke="rgba(146,110,74,0.22)" stroke-width="0.012"/>`,
+        );
+      }
+    } else if (r.roomType === 'bathroom' || r.roomType === 'kitchen') {
+      for (let x = Math.ceil(rb.min.x / 0.3) * 0.3; x < rb.max.x; x += 0.3)
+        floorLines.push(`<line x1="${num(x)}" y1="${num(rb.min.y)}" x2="${num(x)}" y2="${num(rb.max.y)}" stroke="rgba(96,120,130,0.25)" stroke-width="0.012"/>`);
+      for (let y = Math.ceil(rb.min.y / 0.3) * 0.3; y < rb.max.y; y += 0.3)
+        floorLines.push(`<line x1="${num(rb.min.x)}" y1="${num(y)}" x2="${num(rb.max.x)}" y2="${num(y)}" stroke="rgba(96,120,130,0.25)" stroke-width="0.012"/>`);
+    } else if (r.roomType === 'parking' || r.roomType === 'balcony') {
+      for (let x = Math.ceil(rb.min.x / 0.6) * 0.6; x < rb.max.x; x += 0.6)
+        floorLines.push(`<line x1="${num(x)}" y1="${num(rb.min.y)}" x2="${num(x)}" y2="${num(rb.max.y)}" stroke="rgba(110,110,105,0.22)" stroke-width="0.012"/>`);
+      for (let y = Math.ceil(rb.min.y / 0.6) * 0.6; y < rb.max.y; y += 0.6)
+        floorLines.push(`<line x1="${num(rb.min.x)}" y1="${num(y)}" x2="${num(rb.max.x)}" y2="${num(y)}" stroke="rgba(110,110,105,0.22)" stroke-width="0.012"/>`);
+    }
     parts.push(
       `<polygon points="${pts(r.boundary)}" fill="${ROOM_FILLS[r.roomType]}" stroke="#c9c2b4" stroke-width="0.02"/>`,
-      `<text x="${num(c.x)}" y="${num(c.y - 0.08)}" font-size="0.32" text-anchor="middle" fill="#57503f" font-family="sans-serif" font-weight="600">${esc(r.name)}</text>`,
-      `<text x="${num(c.x)}" y="${num(c.y + 0.28)}" font-size="0.24" text-anchor="middle" fill="#8a8272" font-family="sans-serif">${esc(formatArea(polygonArea(r.boundary), unit))}</text>`,
+      floorLines.length
+        ? `<clipPath id="${clipId}"><polygon points="${pts(r.boundary)}"/></clipPath><g clip-path="url(#${clipId})">${floorLines.join('')}</g>`
+        : '',
+    );
+    // labels render in a top pass so furniture never covers them
+    const roomW = rb.max.x - rb.min.x;
+    const nameSize = Math.min(0.32, Math.max(0.14, (roomW * 0.85) / (r.name.length * 0.6)));
+    roomLabels.push(
+      `<text x="${num(c.x)}" y="${num(c.y - 0.08)}" font-size="${num(nameSize)}" text-anchor="middle" fill="#4b4437" font-family="sans-serif" font-weight="600">${esc(r.name)}</text>`,
+      `<text x="${num(c.x)}" y="${num(c.y + 0.28)}" font-size="${num(Math.min(0.24, nameSize * 0.8))}" text-anchor="middle" fill="#7c745f" font-family="sans-serif">${esc(formatArea(polygonArea(r.boundary), unit))}</text>`,
     );
   }
 
-  // Furniture outlines.
+  // Furniture blocks — shared linework, tinted by material, soft-shadowed.
   for (const f of furniture) {
+    if (f.visible === false) continue;
     const t = f.transform;
     const deg = (t.rotation * 180) / Math.PI;
+    const symbol = catalogItemById(f.catalogId)?.symbol;
+    const block = symbolBlockSVG(symbol, f.dimensions.width, f.dimensions.depth, {
+      stroke: '#5f5a4f',
+      thin: 0.014,
+      thick: 0.022,
+      body: '#fbfaf5',
+    });
+    const tint =
+      symbol === 'plant' || symbol === 'rug'
+        ? ''
+        : `<rect x="${num(-f.dimensions.width / 2)}" y="${num(-f.dimensions.depth / 2)}" width="${num(f.dimensions.width)}" height="${num(f.dimensions.depth)}" fill="${f.material.color}" opacity="0.16"/>`;
     parts.push(
-      `<g transform="translate(${num(t.position.x)} ${num(t.position.y)}) rotate(${num(deg)})">
-        <rect x="${num(-f.dimensions.width / 2)}" y="${num(-f.dimensions.depth / 2)}" width="${num(f.dimensions.width)}" height="${num(f.dimensions.depth)}"
-          fill="rgba(255,255,255,0.5)" stroke="#7d786c" stroke-width="0.02"/>
-      </g>`,
+      `<g transform="translate(${num(t.position.x)} ${num(t.position.y)}) rotate(${num(deg)})" filter="url(#ps-furn)">${block}${tint}</g>`,
     );
   }
 
@@ -164,7 +219,9 @@ function planPresentationSVG(doc: DesignDocument, levelId: string): string {
     const d = rings
       .map((ring) => `M ${ring.map((p) => `${num(p.x)} ${num(p.y)}`).join(' L ')} Z`)
       .join(' ');
-    parts.push(`<path d="${d}" fill="#4a443a" fill-rule="evenodd" stroke="#332f28" stroke-width="0.01"/>`);
+    parts.push(
+      `<path d="${d}" fill="#3a3c40" fill-rule="evenodd" stroke="#2b2d30" stroke-width="0.01" filter="url(#ps-wall)"/>`,
+    );
   }
 
   // Openings: white gap + symbol.
@@ -192,20 +249,20 @@ function planPresentationSVG(doc: DesignDocument, levelId: string): string {
     parts.push(`<g transform="translate(${num(c.x)} ${num(c.y)}) rotate(${num(deg)})">${inner.join('')}</g>`);
   }
 
-  // Roofs (dashed eave outline + ridge).
+  parts.push(...roomLabels);
+
+  // Pitched-roof ridges only — eave overhang rectangles belong to the
+  // working drawings, not the presentation sheet.
   for (const el of level?.elements ?? []) {
-    if (el.type !== 'roof') continue;
+    if (el.type !== 'roof' || el.roofStyle === 'flat') continue;
     const W = el.dimensions.width + 2 * el.overhang;
     const D = el.dimensions.depth + 2 * el.overhang;
     const geo = roofGeometry(el.roofStyle, W, D, el.pitch, el.dimensions.thickness ?? 0.15);
+    if (!geo.ridge) continue;
     const deg = (el.transform.rotation * 180) / Math.PI;
-    const ridge = geo.ridge
-      ? `<line x1="${num(geo.ridge[0].x)}" y1="${num(geo.ridge[0].y)}" x2="${num(geo.ridge[1].x)}" y2="${num(geo.ridge[1].y)}" stroke="#8a6845" stroke-width="0.04"/>`
-      : '';
     parts.push(
       `<g transform="translate(${num(el.transform.position.x)} ${num(el.transform.position.y)}) rotate(${num(deg)})">
-        <rect x="${num(-W / 2)}" y="${num(-D / 2)}" width="${num(W)}" height="${num(D)}" fill="none" stroke="#8a6845" stroke-width="0.03" stroke-dasharray="0.3 0.18"/>
-        ${ridge}
+        <line x1="${num(geo.ridge[0].x)}" y1="${num(geo.ridge[0].y)}" x2="${num(geo.ridge[1].x)}" y2="${num(geo.ridge[1].y)}" stroke="#8a6845" stroke-width="0.04" stroke-dasharray="0.3 0.18"/>
       </g>`,
     );
   }
@@ -230,9 +287,26 @@ function planPresentationSVG(doc: DesignDocument, levelId: string): string {
     );
   }
 
-  // Wall dimensions.
-  for (const w of walls) {
-    parts.push(dimLine(w.start, w.end, -(wallThickness(w) / 2 + 0.28), unit));
+  // Building dimensions: clean outer chains (wall lines + overall) instead
+  // of per-wall labels scattered inside the plan.
+  if (walls.length >= 2) {
+    const wb = polygonBounds(walls.flatMap((w) => [w.start, w.end]));
+    for (const chain of dimensionChains(walls, openings)) {
+      // presentation keeps just the coarser rows
+      const rows = chain.rows.slice(-2);
+      rows.forEach((row, i) => {
+        const off = 0.55 + i * 0.5;
+        for (let k = 0; k < row.length - 1; k++) {
+          const a = row[k];
+          const bpt = row[k + 1];
+          if (bpt - a < 0.3) continue;
+          if (chain.side === 'top') parts.push(dimLine({ x: a, y: wb.min.y - off }, { x: bpt, y: wb.min.y - off }, 0, unit));
+          else if (chain.side === 'bottom') parts.push(dimLine({ x: bpt, y: wb.max.y + off }, { x: a, y: wb.max.y + off }, 0, unit));
+          else if (chain.side === 'left') parts.push(dimLine({ x: wb.min.x - off, y: bpt }, { x: wb.min.x - off, y: a }, 0, unit));
+          else parts.push(dimLine({ x: wb.max.x + off, y: a }, { x: wb.max.x + off, y: bpt }, 0, unit));
+        }
+      });
+    }
   }
 
   // Title block.

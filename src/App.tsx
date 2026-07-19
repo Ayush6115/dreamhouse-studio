@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { BUILDABLE_ID, PLOT_ID, useDesignStore, type ToolId } from './store/designStore';
 import { useUiStore } from './store/uiStore';
 import { downloadDocumentJSON } from './store/persistence';
+import { loadImportedCatalog } from './library/catalog';
 import { TopBar } from './components/layout/TopBar';
 import { ToolPalette } from './components/layout/ToolPalette';
 import { LibraryDrawer } from './components/layout/LibraryDrawer';
@@ -110,8 +111,12 @@ function useGlobalHotkeys() {
         return;
       }
       if (e.ctrlKey || e.metaKey || e.altKey) return;
-      if (e.key === 'Escape' && useDesignStore.getState().viewMode === 'elevation') {
-        setTool('select');
+      if (e.key === 'Escape') {
+        // CAD convention: Esc always returns to the Select tool.
+        if (useDesignStore.getState().tool !== 'select') {
+          setTool('select');
+          useUiStore.getState().setActiveCatalogId(null);
+        }
         return;
       }
       // While a drawing tool is active in the plan, digits belong to the
@@ -159,6 +164,14 @@ function Toast() {
 export default function App() {
   useGlobalHotkeys();
   const viewMode = useDesignStore((s) => s.viewMode);
+  const bumpCatalogVersion = useUiStore((s) => s.bumpCatalogVersion);
+
+  // Merge user-imported assets (scripts/import-assets.mjs) into the library.
+  useEffect(() => {
+    void loadImportedCatalog().then((added) => {
+      if (added > 0) bumpCatalogVersion();
+    });
+  }, [bumpCatalogVersion]);
 
   return (
     <div className="flex h-full flex-col overflow-hidden">

@@ -64,6 +64,7 @@ export type OpeningStyle =
   | 'single' // hinged single leaf
   | 'double' // hinged double leaf
   | 'sliding'
+  | 'folding' // bi-fold leaves (doors)
   | 'casement' // outward-opening window leaves
   | 'fixed'; // fixed glazing (windows)
 

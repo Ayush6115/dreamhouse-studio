@@ -41,6 +41,12 @@ interface UiState {
   /** 3D navigation: orbit camera or first-person walkthrough. */
   navMode: 'orbit' | 'walk';
   setNavMode: (m: 'orbit' | 'walk') => void;
+  /** Dollhouse cutaway: active level only, walls cut low, studio backdrop. */
+  cutaway: boolean;
+  setCutaway: (v: boolean) => void;
+  /** Bumped when imported assets merge into the catalog (re-renders library). */
+  catalogVersion: number;
+  bumpCatalogVersion: () => void;
   /** Multi-selected plot vertex indices (plot edit mode). */
   selectedPlotVertices: number[];
   setSelectedPlotVertices: (v: number[]) => void;
@@ -78,6 +84,10 @@ export const useUiStore = create<UiState>()((set, get) => ({
   setRenderQuality: (renderQuality) => set({ renderQuality }),
   navMode: 'orbit',
   setNavMode: (navMode) => set({ navMode }),
+  cutaway: false,
+  setCutaway: (cutaway) => set({ cutaway }),
+  catalogVersion: 0,
+  bumpCatalogVersion: () => set((s) => ({ catalogVersion: s.catalogVersion + 1 })),
   selectedPlotVertices: [],
   setSelectedPlotVertices: (selectedPlotVertices) => set({ selectedPlotVertices }),
   mobilePanelOpen: false,

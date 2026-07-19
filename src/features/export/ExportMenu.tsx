@@ -9,6 +9,7 @@ import {
   exportElevationSVG,
   exportGLB,
   exportPDFReport,
+  exportPlanDXF,
   exportPlanPNG,
   exportPlanSVG,
 } from './exporters';
@@ -88,6 +89,14 @@ export function ExportMenu() {
         const s = useDesignStore.getState();
         return exportPlanPNG(s.doc, s.activeLevelId, quality, style);
       }, 'Plan PNG exported'),
+    },
+    {
+      label: 'Floor plan · DXF',
+      hint: 'AutoCAD interchange (mm)',
+      onClick: run(() => {
+        const s = useDesignStore.getState();
+        exportPlanDXF(s.doc, s.activeLevelId);
+      }, 'Plan DXF exported'),
     },
     {
       label: 'Elevation · SVG',

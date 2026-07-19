@@ -14,10 +14,10 @@ const TOOL_HINTS: Record<string, string> = {
   staircase: 'Click to place a staircase · R rotates after selecting',
   room: 'Trace the room corners · click the first vertex (or Enter) to close',
   roof: 'Click two corners of the roof footprint · edit style, pitch and skylights after placing',
-  furniture: 'Pick an item in the Library, then click to place it',
+  furniture: 'Pick an item in the Library, click to place it · hold Shift to place multiple copies',
   note: 'Click anywhere to place a text note · edit the wording in the panel',
   measure: 'Click two points to measure · Esc clears',
-  'facade-item': 'Pick a façade component, then click to place it',
+  'facade-item': 'Pick a façade component, click to place it · hold Shift to place multiple copies',
 };
 
 function Chip({ label, value }: { label: string; value: string }) {

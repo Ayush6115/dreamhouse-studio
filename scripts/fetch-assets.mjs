@@ -56,6 +56,19 @@ const MODELS = [
   'metal_office_desk',
   'painted_wooden_nightstand',
   'painted_wooden_stool',
+  // Modern library refresh — clean contemporary pieces (all CC0)
+  'Sofa_01',
+  'sofa_03',
+  'ArmChair_01',
+  'CoffeeTable_01',
+  'modern_coffee_table_02',
+  'coffee_table_round_01',
+  'Shelf_01',
+  'steel_frame_shelves_03',
+  'outdoor_table_chair_set_01',
+  'plastic_monobloc_chair_01',
+  'painted_wooden_bench',
+  'ceiling_fan',
   // NOTE: Poly Haven's photoscanned trees (island_tree_02, fir_tree_01) are
   // 39–456 MB — far too heavy for the web. Trees stay parametric.
 ];

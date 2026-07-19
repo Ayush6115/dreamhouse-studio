@@ -93,10 +93,15 @@ export function ElevationCanvas() {
       if (!def) return;
       const z = Math.max(def.height / 2, snap(-world.y));
       pushHistory();
-      addElement(makeFacadeElement(activeCatalogId, { x: snap(world.x), y: z }), {
-        facadeId: facade.id,
-      });
+      const placed = makeFacadeElement(activeCatalogId, { x: snap(world.x), y: z });
+      addElement(placed, { facadeId: facade.id });
       pushRecent(activeCatalogId);
+      // place once, return to Select — hold Shift to keep placing copies
+      if (!e.evt.shiftKey) {
+        useUiStore.getState().setActiveCatalogId(null);
+        useDesignStore.getState().setTool('select');
+        setSelection([placed.id]);
+      }
       return;
     }
 

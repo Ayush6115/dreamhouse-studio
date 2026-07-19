@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { FolderOpen, Footprints, Layout, Magnet, Moon, Redo2, Ruler, Save, Sparkles, Sun, Sunset } from 'lucide-react';
+import { Box, FolderOpen, Footprints, Layout, Magnet, Moon, Redo2, Ruler, Save, Sparkles, Sun, Sunset } from 'lucide-react';
 import { useDesignStore } from '../../store/designStore';
 import { useUiStore } from '../../store/uiStore';
 import { downloadDocumentJSON, importDocumentJSON } from '../../store/persistence';
@@ -34,6 +34,8 @@ export function TopBar() {
   const setRenderQuality = useUiStore((s) => s.setRenderQuality);
   const navMode = useUiStore((s) => s.navMode);
   const setNavMode = useUiStore((s) => s.setNavMode);
+  const cutaway = useUiStore((s) => s.cutaway);
+  const setCutaway = useUiStore((s) => s.setCutaway);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const onOpenFile = async (file: File | undefined) => {
@@ -177,6 +179,13 @@ export function TopBar() {
             onClick={() => setNavMode(navMode === 'walk' ? 'orbit' : 'walk')}
           >
             <Footprints size={16} />
+          </IconButton>
+          <IconButton
+            label={cutaway ? 'Exit 3D floor plan' : '3D floor plan — dollhouse cutaway of the active level'}
+            active={cutaway}
+            onClick={() => setCutaway(!cutaway)}
+          >
+            <Box size={16} />
           </IconButton>
         </>
       )}

@@ -17,9 +17,16 @@ playwright-report/
 .visual-out/
 /v*-*.png
 /Demo_House_report.pdf
+/GROUND-FLOOR-PLAN.png
+/PRESENTATION-PLAN.png
+/3D-FLOOR-PLAN.png
 
 # Local reference material
 /Sample/
+/Architectural drawing*/
+
+# User asset drop folder (imported via scripts/import-assets.mjs)
+/assets-inbox/
 
 # Editor / OS / local tooling
 .vscode/*
